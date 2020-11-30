@@ -1,5 +1,8 @@
 package com.ynhj.magic_war.model.entity;
 
+import com.ynhj.magic_war.model.Equipment;
+import com.ynhj.magic_war.model.entity.msg.SynPlayerMsg;
+
 /**
  * @date: 2020-11-23
  * @author: yangniuhaojiang
@@ -7,17 +10,103 @@ package com.ynhj.magic_war.model.entity;
  * @version: 1.0
  * @description： update_version: update_date: update_author: update_note:
  */
-public class Player {
+public class PlayerInfo {
     private String uid;
     private float x;
     private float z;
     private float ey;
-    private float hp;
+    private Double hp;
+    private int degree;
     private String nickname;
-    private float attach;
-    private float defense;
-    private float speed;
+    private Double attach;
+    private Double defense;
+    private Double speed;
     private int killNum;
+
+    public PlayerInfo(String uid, int degree, String nickname, Equipment equipment) {
+        this.uid = uid;
+        if (equipment != null) {
+            this.hp = 100.0 + (equipment.getHp() == null ? 0 : equipment.getHp());
+            this.attach = equipment.getAttach() == null ? 0.0 : equipment.getAttach();
+            this.defense = equipment.getDefense() == null ? 0.0 : equipment.getDefense();
+            this.speed = 5 + (equipment.getSpeed() == null ? 0.0 : equipment.getSpeed());
+        } else {
+            this.hp = 100.0d;
+            this.attach = 0d;
+            this.defense = 0d;
+            this.speed = 5.0;
+        }
+        this.degree = degree;
+        this.nickname = nickname;
+        this.killNum = 0;
+        switch (degree) {
+            case 0:
+                this.ey = 0;
+                this.x = 0;
+                this.z = -20;
+                break;
+            case 1:
+                this.ey = -45;
+                this.x = 15;
+                this.z = -15;
+                break;
+            case 2:
+                this.ey = -90;
+                this.x = 20;
+                this.z = 0;
+                break;
+            case 3:
+                this.ey = -135;
+                this.x = 15;
+                this.z = 15;
+                break;
+            case 4:
+                this.ey = -180;
+                this.x = 0;
+                this.z = 20;
+                break;
+            case 5:
+                this.ey = -225;
+                this.x = -15;
+                this.z = 15;
+                break;
+            case 6:
+                this.ey = 90;
+                this.x = -20;
+                this.z = 0;
+                break;
+            case 7:
+                this.ey = 45;
+                this.x = -15;
+                this.z = 0;
+                break;
+            default:
+                this.ey = 0;
+                this.x = 0;
+                this.z = 0;
+                break;
+        }
+    }
+
+    /**
+     * @return the ${field.typeName}
+     * @author: yangniuhaojiang
+     * @title: getDegree
+     * @description: update_version: update_date: update_author: update_note:
+     */
+    public int getDegree() {
+        return degree;
+    }
+
+    /**
+     * @param degree the $field.typeName to set
+     * @author: yangniuhaojiang
+     * @title: setDegree
+     * @description: update_version: update_date: update_author: update_note:
+     */
+    public void setDegree(int degree) {
+        this.degree = degree;
+    }
 
     /**
      * @return the String
@@ -105,7 +194,7 @@ public class Player {
      * @title: getHp
      * @description: update_version: update_date: update_author: update_note:
      */
-    public float getHp() {
+    public double getHp() {
         return hp;
     }
 
@@ -115,7 +204,7 @@ public class Player {
      * @title: setHp
      * @description: update_version: update_date: update_author: update_note:
      */
-    public void setHp(float hp) {
+    public void setHp(double hp) {
         this.hp = hp;
     }
 
@@ -145,7 +234,7 @@ public class Player {
      * @title: getAttach
      * @description: update_version: update_date: update_author: update_note:
      */
-    public float getAttach() {
+    public double getAttach() {
         return attach;
     }
 
@@ -155,7 +244,7 @@ public class Player {
      * @title: setAttach
      * @description: update_version: update_date: update_author: update_note:
      */
-    public void setAttach(float attach) {
+    public void setAttach(double attach) {
         this.attach = attach;
     }
 
@@ -165,7 +254,7 @@ public class Player {
      * @title: getDefense
      * @description: update_version: update_date: update_author: update_note:
      */
-    public float getDefense() {
+    public double getDefense() {
         return defense;
     }
 
@@ -175,7 +264,7 @@ public class Player {
      * @title: setDefense
      * @description: update_version: update_date: update_author: update_note:
      */
-    public void setDefense(float defense) {
+    public void setDefense(double defense) {
         this.defense = defense;
     }
 
@@ -185,7 +274,7 @@ public class Player {
      * @title: getSpeed
      * @description: update_version: update_date: update_author: update_note:
      */
-    public float getSpeed() {
+    public double getSpeed() {
         return speed;
     }
 
@@ -195,7 +284,7 @@ public class Player {
      * @title: setSpeed
      * @description: update_version: update_date: update_author: update_note:
      */
-    public void setSpeed(float speed) {
+    public void setSpeed(double speed) {
         this.speed = speed;
     }
 
@@ -217,5 +306,14 @@ public class Player {
      */
     public void setKillNum(int killNum) {
         this.killNum = killNum;
+    }
+
+    public void update(SynPlayerMsg msg) {
+        this.x = msg.getX();
+        this.ey = msg.getEy();
+        this.z = msg.getZ();
+        this.hp = msg.getHp();
+        this.killNum = msg.getKillNum();
+        this.speed = msg.getSpeed();
     }
 }

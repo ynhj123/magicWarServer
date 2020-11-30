@@ -55,4 +55,6 @@ public interface EquipmentMapper  {
      * @mbggenerated
      */
     int updateByPrimaryKey(Equipment record);
+
+    Equipment getTotalByRid(Integer rid);
 }

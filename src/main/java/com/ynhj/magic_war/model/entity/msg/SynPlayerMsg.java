@@ -12,8 +12,8 @@ public class SynPlayerMsg extends MsgBase {
     private float x;
     private float z;
     private float ey;
-    private float hp;
-    private float speed;
+    private Double hp;
+    private Double speed;
     private int killNum;
 
     /**
@@ -102,7 +102,7 @@ public class SynPlayerMsg extends MsgBase {
      * @title: getHp
      * @description: update_version: update_date: update_author: update_note:
      */
-    public float getHp() {
+    public Double getHp() {
         return hp;
     }
 
@@ -112,7 +112,7 @@ public class SynPlayerMsg extends MsgBase {
      * @title: setHp
      * @description: update_version: update_date: update_author: update_note:
      */
-    public void setHp(float hp) {
+    public void setHp(Double hp) {
         this.hp = hp;
     }
 
@@ -122,7 +122,7 @@ public class SynPlayerMsg extends MsgBase {
      * @title: getSpeed
      * @description: update_version: update_date: update_author: update_note:
      */
-    public float getSpeed() {
+    public Double getSpeed() {
         return speed;
     }
 
@@ -132,7 +132,7 @@ public class SynPlayerMsg extends MsgBase {
      * @title: setSpeed
      * @description: update_version: update_date: update_author: update_note:
      */
-    public void setSpeed(float speed) {
+    public void setSpeed(Double speed) {
         this.speed = speed;
     }
 

@@ -235,4 +235,21 @@
       status = #{status,jdbcType=CHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <select id="getTotalByRid" resultType="com.ynhj.magic_war.model.Equipment">
+    SELECT
+        t.role_id,
+        sum(t1.hp * t.num) hp,
+        sum(t1.mp * t.num) mp ,
+        sum(t1.attach * t.num) attach,
+        sum(t1.defense * t.num) defense,
+        sum(t1.speed * t.num) speed
+    FROM
+        role_equipment t
+        join equipment t1 ON t.equipment_id = t1.id
+    WHERE
+        t.role_id = #{rid}
+        AND t.`status` = '1'
+    GROUP BY t.role_id
+  </select>
 </mapper>

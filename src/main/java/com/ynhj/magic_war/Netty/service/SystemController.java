@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
  * @description： update_version: update_date: update_author: update_note:
  */
 @Component
-public class EnterBusiness implements CommandLineRunner {
+public class SystemController implements CommandLineRunner {
     @Autowired
     BusinessServiceImpl businessService;
 
