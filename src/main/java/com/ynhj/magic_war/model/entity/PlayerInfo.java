@@ -1,7 +1,7 @@
 package com.ynhj.magic_war.model.entity;
 
 import com.ynhj.magic_war.model.Equipment;
-import com.ynhj.magic_war.model.entity.msg.SynPlayerMsg;
+import com.ynhj.magic_war.model.entity.msg.SyncPlayerMsg;
 
 /**
  * @date: 2020-11-23
@@ -308,7 +308,7 @@ public class PlayerInfo {
         this.killNum = killNum;
     }
 
-    public void update(SynPlayerMsg msg) {
+    public void update(SyncPlayerMsg msg) {
         this.x = msg.getX();
         this.ey = msg.getEy();
         this.z = msg.getZ();

@@ -27,21 +27,25 @@ public class BattleController implements CommandLineRunner {
         businessService.setListeners(StartMsg.class.getSimpleName(), (ctx, msgBase) -> {
             StartMsg msg = (StartMsg) msgBase;
             ServerSession session = ServerSession.getSession(ctx);
-            battleService.Start(msg, session);
-        }).setListeners(EndMsg.class.getSimpleName(), (ctx, msgBase) -> {
-
+            battleService.start(msg, session);
+        }).setListeners(LeaveBattleMsg.class.getSimpleName(), (ctx, msgBase) -> {
+            LeaveBattleMsg msg = (LeaveBattleMsg) msgBase;
+            ServerSession session = ServerSession.getSession(ctx);
+            battleService.leave(msg, session);
         }).setListeners(HitMsg.class.getSimpleName(), (ctx, msgBase) -> {
 
         }).setListeners(SkillMsg.class.getSimpleName(), (ctx, msgBase) -> {
-
-        }).setListeners(SynPlayerMsg.class.getSimpleName(), (ctx, msgBase) -> {
-            SynPlayerMsg msg = (SynPlayerMsg) msgBase;
+            SkillMsg msg = (SkillMsg) msgBase;
             ServerSession session = ServerSession.getSession(ctx);
-            battleService.SynPlayer(msg, session);
+            battleService.syncSkill(msg, session);
+        }).setListeners(SyncPlayerMsg.class.getSimpleName(), (ctx, msgBase) -> {
+            SyncPlayerMsg msg = (SyncPlayerMsg) msgBase;
+            ServerSession session = ServerSession.getSession(ctx);
+            battleService.syncPlayer(msg, session);
         }).setListeners(LoadFinishMsg.class.getSimpleName(), (ctx, msgBase) -> {
             LoadFinishMsg msg = (LoadFinishMsg) msgBase;
             ServerSession session = ServerSession.getSession(ctx);
-            battleService.Load(msg, session);
+            battleService.load(msg, session);
         })
         ;
     }

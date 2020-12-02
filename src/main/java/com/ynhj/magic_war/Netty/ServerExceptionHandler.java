@@ -26,7 +26,7 @@ public class ServerExceptionHandler extends ChannelInboundHandlerAdapter {
         } else {
 
             //捕捉异常信息
-//            cause.printStackTrace();
+            cause.printStackTrace();
             log.error(cause.getMessage());
             ctx.close();
         }

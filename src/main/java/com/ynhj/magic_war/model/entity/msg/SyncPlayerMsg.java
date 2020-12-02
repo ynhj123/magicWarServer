@@ -7,7 +7,7 @@ package com.ynhj.magic_war.model.entity.msg;
  * @version: 1.0
  * @description： update_version: update_date: update_author: update_note:
  */
-public class SynPlayerMsg extends MsgBase {
+public class SyncPlayerMsg extends MsgBase {
     private String uid;
     private float x;
     private float z;

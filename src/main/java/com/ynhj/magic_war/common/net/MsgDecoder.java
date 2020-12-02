@@ -5,6 +5,8 @@ import com.ynhj.magic_war.model.entity.msg.MsgBase;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 /**
@@ -22,6 +24,7 @@ import java.util.List;
 public class MsgDecoder extends ByteToMessageDecoder {
 
     private final static String MSG_URL = "com.ynhj.magic_war.model.entity.msg.";
+    private final Logger log = LogManager.getLogger(getClass());
 
     @Override
     protected void decode(ChannelHandlerContext ctx,
@@ -58,11 +61,11 @@ public class MsgDecoder extends ByteToMessageDecoder {
         byte a = in.readByte();
         byte b = in.readByte();
         //读取消息长度
-        int length = b << 8 | a;
+        int length = (0xFF & b) << 8 | (0xFF & a);
         byte c = in.readByte();
         byte d = in.readByte();
         //读取版本
-        int headLength = d << 8 | c;
+        int headLength = (0xFF & d) << 8 | (0xFF & c);
         // 长度如果小于0
         if (length < 0) {// 非法数据，关闭连接
             ctx.close();
@@ -76,6 +79,10 @@ public class MsgDecoder extends ByteToMessageDecoder {
         int bodyLength = length - headLength - 2;
 
         byte[] headBytes = new byte[headLength];
+        if (bodyLength < 0) {
+            log.error(bodyLength);
+
+        }
         byte[] bodyBytes = new byte[bodyLength];
         in.readBytes(headBytes, 0, headLength);
         in.readBytes(bodyBytes, 0, bodyLength);
@@ -96,6 +103,7 @@ public class MsgDecoder extends ByteToMessageDecoder {
 //        }
         String className = new String(headBytes);
         MsgBase msgBase = JSON.parseObject(bodyBytes, Class.forName(MSG_URL + className));
+
 
         if (msgBase != null) {
             // 获取业务消息

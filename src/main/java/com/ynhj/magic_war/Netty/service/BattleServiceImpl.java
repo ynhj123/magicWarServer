@@ -6,11 +6,10 @@ import com.ynhj.magic_war.common.exception.SystemErrorType;
 import com.ynhj.magic_war.model.Equipment;
 import com.ynhj.magic_war.model.entity.OnlineUser;
 import com.ynhj.magic_war.model.entity.PlayerInfo;
-import com.ynhj.magic_war.model.entity.msg.LoadFinishMsg;
-import com.ynhj.magic_war.model.entity.msg.StartMsg;
-import com.ynhj.magic_war.model.entity.msg.SynPlayerMsg;
+import com.ynhj.magic_war.model.entity.msg.*;
 import com.ynhj.magic_war.service.EquipmentService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.ognl.IteratorEnumeration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +31,7 @@ public class BattleServiceImpl implements BattleService {
     EquipmentService equipmentService;
 
     @Override
-    public void Start(StartMsg msg, ServerSession session) {
+    public void start(StartMsg msg, ServerSession session) {
         OnlineUser user = session.getUser();
         if (null == session || !session.isLogin()) {
             msg.setCode(SystemErrorType.UNAUTHORIZED_ERROR.getCode());
@@ -55,7 +54,7 @@ public class BattleServiceImpl implements BattleService {
     }
 
     @Override
-    public void Load(LoadFinishMsg msg, ServerSession session) {
+    public void load(LoadFinishMsg msg, ServerSession session) {
         OnlineUser user = session.getUser();
         if (null == session || !session.isLogin()) {
             msg.setCode(SystemErrorType.UNAUTHORIZED_ERROR.getCode());
@@ -97,15 +96,49 @@ public class BattleServiceImpl implements BattleService {
     }
 
     @Override
-    public void SynPlayer(SynPlayerMsg msg, ServerSession session) {
+    public void syncPlayer(SyncPlayerMsg msg, ServerSession session) {
         OnlineUser user = session.getUser();
         //更新信息
         List<PlayerInfo> playerInfos = players.get(user.getRoomId());
-        Optional<PlayerInfo> player = playerInfos.stream().filter(playerInfo -> playerInfo.getUid().equals(msg.getUid())).findFirst();
+        Optional<PlayerInfo> player = playerInfos.stream().filter(playerInfo -> playerInfo.getUid().equals(user.getId())).findFirst();
         if (player.isPresent()) {
             player.get().update(msg);
+            msg.setUid(user.getId());
             //广播
             roomService.broadcast(user.getRoomId(), msg);
         }
+    }
+
+    @Override
+    public void leave(LeaveBattleMsg msg, ServerSession session) {
+        OnlineUser user = session.getUser();
+        //更新信息
+        List<PlayerInfo> playerInfos = players.get(user.getRoomId());
+        Optional<PlayerInfo> player = playerInfos.stream().filter(playerInfo -> playerInfo.getUid().equals(user.getId())).findFirst();
+        if (player.isPresent()) {
+            PlayerInfo playerInfo = player.get();
+            playerInfos.remove(playerInfo);
+            //广播
+            roomService.broadcast(user.getRoomId(), msg);
+        }
+    }
+
+    @Override
+    public void syncSkill(SkillMsg msg, ServerSession session) {
+        OnlineUser user = session.getUser();
+        //更新信息
+        List<PlayerInfo> playerInfos = players.get(user.getRoomId());
+        Optional<PlayerInfo> player = playerInfos.stream().filter(playerInfo -> playerInfo.getUid().equals(user.getId())).findFirst();
+        if (player.isPresent()) {
+            msg.setUid(user.getId());
+            //广播
+            roomService.broadcast(user.getRoomId(), msg);
+        }
+
+    }
+    Iterator ff()
+    {
+        ArrayList<Integer> integers = new ArrayList<>();
+        return integers.iterator();
     }
 }
