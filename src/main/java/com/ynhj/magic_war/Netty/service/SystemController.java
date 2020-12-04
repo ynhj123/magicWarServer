@@ -8,6 +8,7 @@ import com.ynhj.magic_war.common.exception.SystemErrorType;
 import com.ynhj.magic_war.model.entity.OnlineUser;
 import com.ynhj.magic_war.model.entity.msg.EnterMsg;
 import com.ynhj.magic_war.model.entity.msg.MsgPing;
+import com.ynhj.magic_war.service.RoleService;
 import com.ynhj.magic_war.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +27,8 @@ import org.springframework.stereotype.Component;
 public class SystemController implements CommandLineRunner {
     @Autowired
     BusinessServiceImpl businessService;
+    @Autowired
+    RoomService roomService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -48,6 +51,7 @@ public class SystemController implements CommandLineRunner {
                     onlineUser.setNickname(msg.getNickname());
                     onlineUser.setToken(msg.getToken());
                     onlineUser.setUsername(username);
+                    onlineUser.setRoomId(roomService.getRoomIdBy(uid));
                     boolean hasLogin = SessionMap.inst().hasLogin(onlineUser);
                     if (hasLogin) {
                         msg.setCode(SystemErrorType.REPEAT_ERROR.getCode());

@@ -43,4 +43,6 @@ public interface RoomService {
     int getDegree(OnlineUser user);
 
     int getCount(String roomId);
+
+    String getRoomIdBy(String uid);
 }

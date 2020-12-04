@@ -9,12 +9,54 @@ package com.ynhj.magic_war.model.entity.msg;
  */
 public class HitMsg extends MsgBase {
     private String uid;
-    private int type; //0造成伤害并击飞1持续掉血
+    private int skillId; //0造成伤害并击飞1持续掉血
+    //
     private float x;
     private float z;
-    private float ey;
-    private float hp;
-    private float speed;
+
+    /**
+     * @return the ${field.typeName}
+     * @author: yangniuhaojiang
+     * @title: getY
+     * @description: update_version: update_date: update_author: update_note:
+     */
+    public float getY() {
+        return y;
+    }
+
+    /**
+     * @param y the $field.typeName to set
+     * @author: yangniuhaojiang
+     * @title: setY
+     * @description: update_version: update_date: update_author: update_note:
+     */
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    /**
+     * @return the String
+     * @author: yangniuhaojiang
+     * @title: getTargetId
+     * @description: update_version: update_date: update_author: update_note:
+     */
+    public String getTargetId() {
+        return targetId;
+    }
+
+    /**
+     * @param targetId the String to set
+     * @author: yangniuhaojiang
+     * @title: setTargetId
+     * @description: update_version: update_date: update_author: update_note:
+     */
+    public void setTargetId(String targetId) {
+        this.targetId = targetId;
+    }
+
+    private float y;
+    private String targetId;
+
     /**
      * @return the String
      * @author: yangniuhaojiang
@@ -41,18 +83,18 @@ public class HitMsg extends MsgBase {
      * @title: getType
      * @description: update_version: update_date: update_author: update_note:
      */
-    public int getType() {
-        return type;
+    public int getSkillId() {
+        return skillId;
     }
 
     /**
-     * @param type the $field.typeName to set
+     * @param skillId the $field.typeName to set
      * @author: yangniuhaojiang
      * @title: setType
      * @description: update_version: update_date: update_author: update_note:
      */
-    public void setType(int type) {
-        this.type = type;
+    public void setSkillId(int skillId) {
+        this.skillId = skillId;
     }
 
     /**
@@ -95,65 +137,9 @@ public class HitMsg extends MsgBase {
         this.z = z;
     }
 
-    /**
-     * @return the ${field.typeName}
-     * @author: yangniuhaojiang
-     * @title: getEy
-     * @description: update_version: update_date: update_author: update_note:
-     */
-    public float getEy() {
-        return ey;
-    }
 
-    /**
-     * @param ey the $field.typeName to set
-     * @author: yangniuhaojiang
-     * @title: setEy
-     * @description: update_version: update_date: update_author: update_note:
-     */
-    public void setEy(float ey) {
-        this.ey = ey;
-    }
 
-    /**
-     * @return the ${field.typeName}
-     * @author: yangniuhaojiang
-     * @title: getHp
-     * @description: update_version: update_date: update_author: update_note:
-     */
-    public float getHp() {
-        return hp;
-    }
 
-    /**
-     * @param hp the $field.typeName to set
-     * @author: yangniuhaojiang
-     * @title: setHp
-     * @description: update_version: update_date: update_author: update_note:
-     */
-    public void setHp(float hp) {
-        this.hp = hp;
-    }
-
-    /**
-     * @return the ${field.typeName}
-     * @author: yangniuhaojiang
-     * @title: getSpeed
-     * @description: update_version: update_date: update_author: update_note:
-     */
-    public float getSpeed() {
-        return speed;
-    }
-
-    /**
-     * @param speed the $field.typeName to set
-     * @author: yangniuhaojiang
-     * @title: setSpeed
-     * @description: update_version: update_date: update_author: update_note:
-     */
-    public void setSpeed(float speed) {
-        this.speed = speed;
-    }
 
 
 }

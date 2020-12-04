@@ -9,7 +9,6 @@ import com.ynhj.magic_war.model.entity.PlayerInfo;
 import com.ynhj.magic_war.model.entity.msg.*;
 import com.ynhj.magic_war.service.EquipmentService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.ognl.IteratorEnumeration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -76,7 +75,12 @@ public class BattleServiceImpl implements BattleService {
                 List<PlayerInfo> playerInfos;
                 if (players.containsKey(user.getRoomId())) {
                     playerInfos = players.get(user.getRoomId());
-                    playerInfos.add(playerInfo);
+                    Optional<PlayerInfo> first = playerInfos.stream().filter(playerInfo1 -> playerInfo1.getUid().equals(user.getId())).findFirst();
+                    if (!first.isPresent()){
+                        playerInfos.add(playerInfo);
+                    }else {
+                        first.get().init(equipment);
+                    }
 
                 } else {
                     playerInfos = new ArrayList<>();
@@ -103,9 +107,23 @@ public class BattleServiceImpl implements BattleService {
         Optional<PlayerInfo> player = playerInfos.stream().filter(playerInfo -> playerInfo.getUid().equals(user.getId())).findFirst();
         if (player.isPresent()) {
             player.get().update(msg);
+
             msg.setUid(user.getId());
             //广播
             roomService.broadcast(user.getRoomId(), msg);
+            if (msg.getHp() == 0) {
+                Optional<PlayerInfo> first = playerInfos.stream().filter(playerInfo -> playerInfo.getUid().equals(playerInfo.getFinialHitId())).findFirst();
+                first.ifPresent(playerInfo -> {
+                    playerInfo.setKillNum(playerInfo.getKillNum() + 1);
+                });
+                long count = playerInfos.stream().filter(playerInfo -> playerInfo.getHp() > 0).count();
+                if (count <= 1) {
+                    EndMsg endMsg = new EndMsg();
+                    endMsg.setPlayerInfos(playerInfos);
+                    roomService.broadcast(user.getRoomId(), endMsg);
+                }
+            }
+
         }
     }
 
@@ -136,9 +154,19 @@ public class BattleServiceImpl implements BattleService {
         }
 
     }
-    Iterator ff()
-    {
-        ArrayList<Integer> integers = new ArrayList<>();
-        return integers.iterator();
+
+    @Override
+    public void syncHit(HitMsg msg, ServerSession session) {
+        OnlineUser user = session.getUser();
+        //更新信息
+        List<PlayerInfo> playerInfos = players.get(user.getRoomId());
+        Optional<PlayerInfo> playerOpt = playerInfos.stream().filter(playerInfo -> playerInfo.getUid().equals(user.getId())).findFirst();
+        if (playerOpt.isPresent()) {
+            PlayerInfo playerInfo = playerOpt.get();
+            playerInfo.setFinialHitId(msg.getTargetId());
+            msg.setUid(user.getId());
+            //广播
+            roomService.broadcast(user.getRoomId(), msg);
+        }
     }
 }

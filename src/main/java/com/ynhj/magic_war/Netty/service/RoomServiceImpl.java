@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @date: 2020-11-23
@@ -38,24 +39,42 @@ public class RoomServiceImpl implements RoomService {
     RoleService roleService;
 
     public void pageRoomInfos(RoomListMsg msg, ServerSession session) {
+        OnlineUser user = session.getUser();
         if (null == session || !session.isLogin()) {
             msg.setCode(SystemErrorType.UNAUTHORIZED_ERROR.getCode());
             msg.setMsg(SystemErrorType.UNAUTHORIZED_ERROR.getMesg());
-        } else if (msg.getCurPage() < 0 || ((msg.getCurPage() - 1) * msg.getPageSize() > roomMap.size())) {
+        } else if (msg.getCurPage() < 0 || (((msg.getCurPage() - 1) != 0 )&&((msg.getCurPage() - 1) * msg.getPageSize() >= roomMap.size()))) {
             msg.setCode(SystemErrorType.BAD_REQUEST_ERROR.getCode());
             msg.setMsg("请求越界");
+        } else if (!StringUtils.isEmpty(user.getRoomId())){
+            RoomInfo roomInfo = roomMap.get(user.getRoomId());
+            if (roomInfo == null){
+                user.setRoomId("");
+            }else {
+                Optional<PlayerRoom> first = roomInfo.getPlayers().stream().filter(playerRoom -> playerRoom.getUid().equals(user.getId())).findFirst();
+                if (!first.isPresent()){
+                    user.setRoomId("");
+                }else {
+                    msg.setCode(SystemErrorType.REPEAT_ERROR.getCode());
+                    msg.setMsg(roomInfo.getId());
+                }
+            }
         } else {
-            List<RoomInfo> rooms = roomMap.entrySet().stream()
-                    .map(Map.Entry::getValue)
-                    .sorted()
-                    .skip(msg.getPageSize() * (msg.getCurPage() - 1)).limit(msg.getPageSize())
-                    .collect(Collectors.toList());
-            msg.setRooms(rooms);
-            msg.setSize(roomMap.size());
-            msg.setCode(Result.SUCCESSFUL_CODE);
-            msg.setMsg(Result.SUCCESSFUL_MESG);
+            page(msg);
         }
 
+    }
+
+    private void page(RoomListMsg msg) {
+        List<RoomInfo> rooms = roomMap.entrySet().stream()
+                .map(Map.Entry::getValue)
+                .sorted()
+                .skip(msg.getPageSize() * (msg.getCurPage() - 1)).limit(msg.getPageSize())
+                .collect(Collectors.toList());
+        msg.setRooms(rooms);
+        msg.setSize(roomMap.size());
+        msg.setCode(Result.SUCCESSFUL_CODE);
+        msg.setMsg(Result.SUCCESSFUL_MESG);
     }
 
     public void addRoomInfo(CreateRoomMsg msg, ServerSession session) {
@@ -139,6 +158,11 @@ public class RoomServiceImpl implements RoomService {
             msg.setMsg(SystemErrorType.UNAUTHORIZED_ERROR.getMesg());
         } else {
             String roomId = msg.getRoomId();
+            if (!roomMap.containsKey(roomId)){
+                msg.setCode(SystemErrorType.NOTFOUND_ERROR.getCode());
+                msg.setMsg(SystemErrorType.NOTFOUND_ERROR.getMesg());
+                return;
+            }
             RoomInfo roomInfo = roomMap.get(roomId);
             List<PlayerRoom> players = roomInfo.getPlayers();
             if (roomInfo == null) {
@@ -386,5 +410,16 @@ public class RoomServiceImpl implements RoomService {
     public int getCount(String roomId) {
         RoomInfo roomInfo = roomMap.get(roomId);
         return roomInfo.getPlayers().size();
+    }
+
+    @Override
+    public String getRoomIdBy(String uid) {
+        Optional<RoomInfo> first = roomMap.values().stream()
+                .filter(roomInfo -> roomInfo.getPlayers().stream().filter(playerRoom -> playerRoom.getUid().equals(uid)).count() > 0)
+                .findFirst();
+        if (first.isPresent()){
+            return first.get().getId();
+        }
+        return null;
     }
 }

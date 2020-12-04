@@ -33,7 +33,9 @@ public class BattleController implements CommandLineRunner {
             ServerSession session = ServerSession.getSession(ctx);
             battleService.leave(msg, session);
         }).setListeners(HitMsg.class.getSimpleName(), (ctx, msgBase) -> {
-
+            HitMsg msg = (HitMsg) msgBase;
+            ServerSession session = ServerSession.getSession(ctx);
+            battleService.syncHit(msg, session);
         }).setListeners(SkillMsg.class.getSimpleName(), (ctx, msgBase) -> {
             SkillMsg msg = (SkillMsg) msgBase;
             ServerSession session = ServerSession.getSession(ctx);

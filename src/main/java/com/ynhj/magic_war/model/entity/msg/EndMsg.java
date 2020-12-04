@@ -1,5 +1,9 @@
 package com.ynhj.magic_war.model.entity.msg;
 
+import com.ynhj.magic_war.model.entity.PlayerInfo;
+
+import java.util.List;
+
 /**
  * @date: 2020-11-23
  * @author: yangniuhaojiang
@@ -8,46 +12,26 @@ package com.ynhj.magic_war.model.entity.msg;
  * @description： update_version: update_date: update_author: update_note:
  */
 public class EndMsg extends MsgBase {
-    private int code;
-    private String msg;
+
+    private List<PlayerInfo> playerInfos;
 
     /**
-     * @return the ${field.typeName}
+     * @return the PlayerInfo>
      * @author: yangniuhaojiang
-     * @title: getCode
+     * @title: getPlayerInfos
      * @description: update_version: update_date: update_author: update_note:
      */
-    public int getCode() {
-        return code;
+    public List<PlayerInfo> getPlayerInfos() {
+        return playerInfos;
     }
 
     /**
-     * @param code the $field.typeName to set
+     * @param playerInfos the PlayerInfo> to set
      * @author: yangniuhaojiang
-     * @title: setCode
+     * @title: setPlayerInfos
      * @description: update_version: update_date: update_author: update_note:
      */
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    /**
-     * @return the String
-     * @author: yangniuhaojiang
-     * @title: getMsg
-     * @description: update_version: update_date: update_author: update_note:
-     */
-    public String getMsg() {
-        return msg;
-    }
-
-    /**
-     * @param msg the String to set
-     * @author: yangniuhaojiang
-     * @title: setMsg
-     * @description: update_version: update_date: update_author: update_note:
-     */
-    public void setMsg(String msg) {
-        this.msg = msg;
+    public void setPlayerInfos(List<PlayerInfo> playerInfos) {
+        this.playerInfos = playerInfos;
     }
 }

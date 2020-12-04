@@ -20,4 +20,6 @@ public interface BattleService {
     void leave(LeaveBattleMsg msg, ServerSession session);
 
     void syncSkill(SkillMsg msg, ServerSession session);
+
+    void syncHit(HitMsg msg, ServerSession session);
 }

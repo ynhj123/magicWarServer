@@ -2,6 +2,8 @@ package com.ynhj.magic_war.Netty.service;
 
 import com.ynhj.magic_war.Netty.BusinessServiceImpl;
 import com.ynhj.magic_war.Netty.ServerSession;
+import com.ynhj.magic_war.common.entity.Result;
+import com.ynhj.magic_war.common.exception.SystemErrorType;
 import com.ynhj.magic_war.model.entity.msg.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,8 +31,18 @@ public class RoomController implements CommandLineRunner {
         businessService.setListeners(RoomListMsg.class.getSimpleName(), (ctx, msgBase) -> {
             RoomListMsg msg = (RoomListMsg) msgBase;
             ServerSession session = ServerSession.getSession(ctx);
+            log.error("getRoomList");
             roomService.pageRoomInfos(msg, session);
-            session.writeAndFlush(msg);
+            if (msg.getCode().equals(SystemErrorType.REPEAT_ERROR.getCode())){
+                EnterRoomMsg enterRoomMsg = new EnterRoomMsg();
+                enterRoomMsg.setRoomId(msg.getMsg());
+                enterRoomMsg.setCode(Result.SUCCESSFUL_CODE);
+                enterRoomMsg.setMsg(Result.SUCCESSFUL_MESG);
+                session.writeAndFlush(enterRoomMsg);
+            }else {
+                session.writeAndFlush(msg);
+
+            }
         }).setListeners(CreateRoomMsg.class.getSimpleName(), (ctx, msgBase) -> {
             CreateRoomMsg msg = (CreateRoomMsg) msgBase;
             ServerSession session = ServerSession.getSession(ctx);

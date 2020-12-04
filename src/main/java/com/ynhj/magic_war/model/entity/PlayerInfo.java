@@ -23,6 +23,42 @@ public class PlayerInfo {
     private Double speed;
     private int killNum;
 
+    /**
+     * @return the String
+     * @author: yangniuhaojiang
+     * @title: getFinialHitId
+     * @description: update_version: update_date: update_author: update_note:
+     */
+    public String getFinialHitId() {
+        return finialHitId;
+    }
+
+    /**
+     * @param finialHitId the String to set
+     * @author: yangniuhaojiang
+     * @title: setFinialHitId
+     * @description: update_version: update_date: update_author: update_note:
+     */
+    public void setFinialHitId(String finialHitId) {
+        this.finialHitId = finialHitId;
+    }
+
+    private String  finialHitId;
+    public void init(Equipment equipment) {
+        this.killNum = 0;
+        if (equipment != null) {
+            this.hp = 100.0 + (equipment.getHp() == null ? 0 : equipment.getHp());
+            this.attach = equipment.getAttach() == null ? 0.0 : equipment.getAttach();
+            this.defense = equipment.getDefense() == null ? 0.0 : equipment.getDefense();
+            this.speed = 5 + (equipment.getSpeed() == null ? 0.0 : equipment.getSpeed());
+        } else {
+            this.hp = 100.0d;
+            this.attach = 0d;
+            this.defense = 0d;
+            this.speed = 5.0;
+        }
+        swichDegree(degree);
+    }
     public PlayerInfo(String uid, int degree, String nickname, Equipment equipment) {
         this.uid = uid;
         if (equipment != null) {
@@ -39,6 +75,10 @@ public class PlayerInfo {
         this.degree = degree;
         this.nickname = nickname;
         this.killNum = 0;
+        swichDegree(degree);
+    }
+
+    private void swichDegree(int degree) {
         switch (degree) {
             case 0:
                 this.ey = 0;
@@ -316,4 +356,6 @@ public class PlayerInfo {
         this.killNum = msg.getKillNum();
         this.speed = msg.getSpeed();
     }
+
+
 }
