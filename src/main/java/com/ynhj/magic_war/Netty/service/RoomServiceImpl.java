@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @date: 2020-11-23
@@ -43,18 +42,18 @@ public class RoomServiceImpl implements RoomService {
         if (null == session || !session.isLogin()) {
             msg.setCode(SystemErrorType.UNAUTHORIZED_ERROR.getCode());
             msg.setMsg(SystemErrorType.UNAUTHORIZED_ERROR.getMesg());
-        } else if (msg.getCurPage() < 0 || (((msg.getCurPage() - 1) != 0 )&&((msg.getCurPage() - 1) * msg.getPageSize() >= roomMap.size()))) {
+        } else if (msg.getCurPage() < 0 || (((msg.getCurPage() - 1) != 0) && ((msg.getCurPage() - 1) * msg.getPageSize() >= roomMap.size()))) {
             msg.setCode(SystemErrorType.BAD_REQUEST_ERROR.getCode());
             msg.setMsg("请求越界");
-        } else if (!StringUtils.isEmpty(user.getRoomId())){
+        } else if (!StringUtils.isEmpty(user.getRoomId())) {
             RoomInfo roomInfo = roomMap.get(user.getRoomId());
-            if (roomInfo == null){
+            if (roomInfo == null) {
                 user.setRoomId("");
-            }else {
+            } else {
                 Optional<PlayerRoom> first = roomInfo.getPlayers().stream().filter(playerRoom -> playerRoom.getUid().equals(user.getId())).findFirst();
-                if (!first.isPresent()){
+                if (!first.isPresent()) {
                     user.setRoomId("");
-                }else {
+                } else {
                     msg.setCode(SystemErrorType.REPEAT_ERROR.getCode());
                     msg.setMsg(roomInfo.getId());
                 }
@@ -158,7 +157,7 @@ public class RoomServiceImpl implements RoomService {
             msg.setMsg(SystemErrorType.UNAUTHORIZED_ERROR.getMesg());
         } else {
             String roomId = msg.getRoomId();
-            if (!roomMap.containsKey(roomId)){
+            if (!roomMap.containsKey(roomId)) {
                 msg.setCode(SystemErrorType.NOTFOUND_ERROR.getCode());
                 msg.setMsg(SystemErrorType.NOTFOUND_ERROR.getMesg());
                 return;
@@ -173,16 +172,23 @@ public class RoomServiceImpl implements RoomService {
                 msg.setMsg("房间人数已满！");
             } else {
                 OnlineUser user = session.getUser();
-                PlayerRoom playerRoom = new PlayerRoom();
-                playerRoom.setDegree(players.size());
-                playerRoom.setNickname(user.getNickname());
-                playerRoom.setRoomStatus(0);
-                playerRoom.setUsername(user.getUsername());
-                playerRoom.setUid(user.getId());
-                roomInfo.setCount(players.size());
-                playerRoom.setScore(roleService.get(user.getId()).getScore());
-                players.add(playerRoom);
-                user.setRoomId(roomId);
+                Optional<PlayerRoom> first = players.stream().filter(playerRoom -> playerRoom.getUid().equals(user.getId())).findFirst();
+                PlayerRoom playerRoom;
+                if (first.isPresent()) {
+                    playerRoom = first.get();
+                } else {
+                    playerRoom = new PlayerRoom();
+                    playerRoom.setDegree(players.size());
+                    playerRoom.setNickname(user.getNickname());
+                    playerRoom.setRoomStatus(0);
+                    playerRoom.setUsername(user.getUsername());
+                    playerRoom.setUid(user.getId());
+                    roomInfo.setCount(players.size());
+                    playerRoom.setScore(roleService.get(user.getId()).getScore());
+                    players.add(playerRoom);
+                    user.setRoomId(roomId);
+                }
+
                 msg.setCode(Result.SUCCESSFUL_CODE);
                 msg.setMsg(Result.SUCCESSFUL_MESG);
                 List<String> userIds = players.stream()
@@ -417,9 +423,16 @@ public class RoomServiceImpl implements RoomService {
         Optional<RoomInfo> first = roomMap.values().stream()
                 .filter(roomInfo -> roomInfo.getPlayers().stream().filter(playerRoom -> playerRoom.getUid().equals(uid)).count() > 0)
                 .findFirst();
-        if (first.isPresent()){
+        if (first.isPresent()) {
             return first.get().getId();
         }
         return null;
+    }
+
+    @Override
+    public void initRoomPlayer(String roomId) {
+        RoomInfo roomInfo = roomMap.get(roomId);
+        List<PlayerRoom> players = roomInfo.getPlayers();
+        players.forEach(playerRoom -> playerRoom.setRoomStatus(0));
     }
 }

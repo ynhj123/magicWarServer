@@ -1,7 +1,5 @@
 package com.ynhj.magic_war.model.entity;
 
-import com.alibaba.fastjson.JSON;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

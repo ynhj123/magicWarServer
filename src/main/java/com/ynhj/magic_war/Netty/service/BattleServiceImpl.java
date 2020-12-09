@@ -46,6 +46,7 @@ public class BattleServiceImpl implements BattleService {
             msg.setCode(SystemErrorType.SYSTEM_ERROR.getCode());
             msg.setMsg("用户未全部准备");
         } else {
+            
             msg.setCode(Result.SUCCESSFUL_CODE);
             msg.setMsg(Result.SUCCESSFUL_MESG);
             roomService.broadcast(user.getRoomId(), msg);
@@ -120,6 +121,7 @@ public class BattleServiceImpl implements BattleService {
                 if (count <= 1) {
                     EndMsg endMsg = new EndMsg();
                     endMsg.setPlayerInfos(playerInfos);
+                    roomService.initRoomPlayer(user.getRoomId());
                     roomService.broadcast(user.getRoomId(), endMsg);
                 }
             }
