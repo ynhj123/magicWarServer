@@ -47,4 +47,8 @@ public interface RoomService {
     String getRoomIdBy(String uid);
 
     void initRoomPlayer(String roomId);
+
+    void start(String roomId);
+
+    void end(String roomId);
 }

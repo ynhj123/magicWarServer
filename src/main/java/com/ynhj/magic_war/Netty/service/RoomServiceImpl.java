@@ -435,4 +435,16 @@ public class RoomServiceImpl implements RoomService {
         List<PlayerRoom> players = roomInfo.getPlayers();
         players.forEach(playerRoom -> playerRoom.setRoomStatus(0));
     }
+
+    @Override
+    public void start(String roomId) {
+        RoomInfo roomInfo = roomMap.get(roomId);
+        roomInfo.setStatus(1);
+    }
+
+    @Override
+    public void end(String roomId) {
+        RoomInfo roomInfo = roomMap.get(roomId);
+        roomInfo.setStatus(0);
+    }
 }

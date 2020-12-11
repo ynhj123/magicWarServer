@@ -22,6 +22,7 @@ public class PlayerInfo {
     private Double defense;
     private Double speed;
     private int killNum;
+    private int rank;
 
     /**
      * @return the String
@@ -357,5 +358,23 @@ public class PlayerInfo {
         this.speed = msg.getSpeed();
     }
 
+    /**
+     * @return the ${field.typeName}
+     * @author: yangniuhaojiang
+     * @title: getRank
+     * @description: update_version: update_date: update_author: update_note:
+     */
+    public int getRank() {
+        return rank;
+    }
 
+    /**
+     * @param rank the $field.typeName to set
+     * @author: yangniuhaojiang
+     * @title: setRank
+     * @description: update_version: update_date: update_author: update_note:
+     */
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
 }

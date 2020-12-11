@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @date: 2020-11-30
@@ -46,7 +47,7 @@ public class BattleServiceImpl implements BattleService {
             msg.setCode(SystemErrorType.SYSTEM_ERROR.getCode());
             msg.setMsg("用户未全部准备");
         } else {
-            
+            roomService.start(user.getRoomId());
             msg.setCode(Result.SUCCESSFUL_CODE);
             msg.setMsg(Result.SUCCESSFUL_MESG);
             roomService.broadcast(user.getRoomId(), msg);
@@ -107,22 +108,26 @@ public class BattleServiceImpl implements BattleService {
         List<PlayerInfo> playerInfos = players.get(user.getRoomId());
         Optional<PlayerInfo> player = playerInfos.stream().filter(playerInfo -> playerInfo.getUid().equals(user.getId())).findFirst();
         if (player.isPresent()) {
-            player.get().update(msg);
-
+            PlayerInfo playerInfo1 = player.get();
+            playerInfo1.update(msg);
             msg.setUid(user.getId());
             //广播
             roomService.broadcast(user.getRoomId(), msg);
             if (msg.getHp() == 0) {
-                Optional<PlayerInfo> first = playerInfos.stream().filter(playerInfo -> playerInfo.getUid().equals(playerInfo.getFinialHitId())).findFirst();
-                first.ifPresent(playerInfo -> {
-                    playerInfo.setKillNum(playerInfo.getKillNum() + 1);
-                });
+                Optional<PlayerInfo> first = playerInfos.stream().filter(playerInfo -> playerInfo.getUid().equals(playerInfo1.getFinialHitId())).findFirst();
+                first.ifPresent(playerInfo -> playerInfo.setKillNum(playerInfo.getKillNum() + 1));
                 long count = playerInfos.stream().filter(playerInfo -> playerInfo.getHp() > 0).count();
+                playerInfo1.setRank((int) count);
                 if (count <= 1) {
                     EndMsg endMsg = new EndMsg();
-                    endMsg.setPlayerInfos(playerInfos);
+                    List<PlayerInfo> collect = playerInfos.stream()
+                            .sorted(Comparator.comparing(PlayerInfo::getRank))
+                            .collect(Collectors.toList());
+                    endMsg.setPlayerInfos(collect);
                     roomService.initRoomPlayer(user.getRoomId());
+                    roomService.end(user.getRoomId());
                     roomService.broadcast(user.getRoomId(), endMsg);
+                    players.get(user.getRoomId()).clear();
                 }
             }
 
