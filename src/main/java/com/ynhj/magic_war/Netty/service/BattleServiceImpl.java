@@ -9,6 +9,8 @@ import com.ynhj.magic_war.model.entity.PlayerInfo;
 import com.ynhj.magic_war.model.entity.msg.*;
 import com.ynhj.magic_war.service.EquipmentService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class BattleServiceImpl implements BattleService {
+    Logger log = LogManager.getLogger(getClass());
     static Map<String, List<PlayerInfo>> players = new HashMap<>();
     @Autowired
     RoomService roomService;
@@ -114,8 +117,16 @@ public class BattleServiceImpl implements BattleService {
             //广播
             roomService.broadcast(user.getRoomId(), msg);
             if (msg.getHp() == 0) {
-                Optional<PlayerInfo> first = playerInfos.stream().filter(playerInfo -> playerInfo.getUid().equals(playerInfo1.getFinialHitId())).findFirst();
-                first.ifPresent(playerInfo -> playerInfo.setKillNum(playerInfo.getKillNum() + 1));
+                playerInfos.stream().forEach(playerInfo -> {
+                    if (playerInfo.getUid().equals(playerInfo1.getFinialHitId())){
+                        playerInfo.setKillNum(playerInfo.getKillNum() + 1);
+                        log.error(playerInfo.getUid()+":"+playerInfo.getKillNum());
+
+                    }
+                });
+             /*   first.ifPresent(playerInfo -> {
+
+                });*/
                 long count = playerInfos.stream().filter(playerInfo -> playerInfo.getHp() > 0).count();
                 playerInfo1.setRank((int) count);
                 if (count <= 1) {
@@ -124,9 +135,10 @@ public class BattleServiceImpl implements BattleService {
                             .sorted(Comparator.comparing(PlayerInfo::getRank))
                             .collect(Collectors.toList());
                     endMsg.setPlayerInfos(collect);
+                    roomService.broadcast(user.getRoomId(), endMsg);
+
                     roomService.initRoomPlayer(user.getRoomId());
                     roomService.end(user.getRoomId());
-                    roomService.broadcast(user.getRoomId(), endMsg);
                     players.get(user.getRoomId()).clear();
                 }
             }

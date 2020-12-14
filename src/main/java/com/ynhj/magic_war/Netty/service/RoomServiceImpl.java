@@ -86,7 +86,6 @@ public class RoomServiceImpl implements RoomService {
             RoomInfo roomInfo = new RoomInfo();
             roomInfo.setMaxCount(8);
             List<PlayerRoom> players = roomInfo.getPlayers();
-            roomInfo.setCount(players.size() + 1);
             roomInfo.setStatus(0);
             roomInfo.setId(UUIDUtils.getRoomId());
             user.setRoomId(roomInfo.getId());
@@ -98,6 +97,7 @@ public class RoomServiceImpl implements RoomService {
             playerRoom.setUsername(user.getUsername());
             playerRoom.setUid(user.getId());
             players.add(playerRoom);
+            roomInfo.setCount(players.size());
             roomMap.put(roomInfo.getId(), roomInfo);
             msg.setRoomId(roomInfo.getId());
             msg.setCode(Result.SUCCESSFUL_CODE);
@@ -183,10 +183,11 @@ public class RoomServiceImpl implements RoomService {
                     playerRoom.setRoomStatus(0);
                     playerRoom.setUsername(user.getUsername());
                     playerRoom.setUid(user.getId());
-                    roomInfo.setCount(players.size());
                     playerRoom.setScore(roleService.get(user.getId()).getScore());
                     players.add(playerRoom);
                     user.setRoomId(roomId);
+                    roomInfo.setCount(players.size());
+
                 }
 
                 msg.setCode(Result.SUCCESSFUL_CODE);

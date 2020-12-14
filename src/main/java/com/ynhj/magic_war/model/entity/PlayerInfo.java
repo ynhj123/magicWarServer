@@ -354,7 +354,7 @@ public class PlayerInfo {
         this.ey = msg.getEy();
         this.z = msg.getZ();
         this.hp = msg.getHp();
-        this.killNum = msg.getKillNum();
+        //this.killNum = msg.getKillNum();
         this.speed = msg.getSpeed();
     }
 

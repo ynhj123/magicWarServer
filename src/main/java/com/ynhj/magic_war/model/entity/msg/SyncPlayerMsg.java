@@ -15,6 +15,7 @@ public class SyncPlayerMsg extends MsgBase {
     private Double hp;
     private Double speed;
     private int killNum;
+    private long frame;
 
     /**
      * @return the String
@@ -156,5 +157,23 @@ public class SyncPlayerMsg extends MsgBase {
         this.killNum = killNum;
     }
 
+    /**
+     * @return the ${field.typeName}
+     * @author: yangniuhaojiang
+     * @title: getFrame
+     * @description: update_version: update_date: update_author: update_note:
+     */
+    public long getFrame() {
+        return frame;
+    }
 
+    /**
+     * @param frame the $field.typeName to set
+     * @author: yangniuhaojiang
+     * @title: setFrame
+     * @description: update_version: update_date: update_author: update_note:
+     */
+    public void setFrame(long frame) {
+        this.frame = frame;
+    }
 }

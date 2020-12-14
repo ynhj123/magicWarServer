@@ -29,10 +29,11 @@ public class BusinessHandler extends ChannelInboundHandlerAdapter {
         }
 
         //异步处理IM消息转发的逻辑
-        FutureTaskScheduler.add(() ->
+       /* FutureTaskScheduler.add(() ->
         {
             businessService.Handler(ctx, (MsgBase) msg);
-        });
+        });*/
+        businessService.Handler(ctx, (MsgBase) msg);
         super.channelRead(ctx, msg);
     }
 }
