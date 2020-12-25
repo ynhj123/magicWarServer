@@ -51,7 +51,7 @@ public class NettyServer {
         b.channel(NioServerSocketChannel.class);
         //3 设置监听端口
         String ip = "192.168.1.105";
-        b.localAddress(new InetSocketAddress(ip, 8888));
+        b.localAddress(new InetSocketAddress(ip, 8222));
         //4 设置通道选项
         b.option(ChannelOption.SO_KEEPALIVE, true);
         b.option(ChannelOption.ALLOCATOR,

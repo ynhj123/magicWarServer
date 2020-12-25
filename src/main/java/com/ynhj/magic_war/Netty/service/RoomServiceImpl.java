@@ -188,7 +188,11 @@ public class RoomServiceImpl implements RoomService {
             } else if (players.size() >= roomInfo.getMaxCount()) {
                 msg.setCode(SystemErrorType.SYSTEM_ERROR.getCode());
                 msg.setMsg("房间人数已满！");
-            } else {
+            }else if (roomInfo.getStatus() == 1){
+                msg.setCode(SystemErrorType.SYSTEM_ERROR.getCode());
+                msg.setMsg("房间正在游戏中！");
+            }
+            else {
                 OnlineUser user = session.getUser();
                 Optional<PlayerRoom> first = players.stream().filter(playerRoom -> playerRoom.getUid().equals(user.getId())).findFirst();
                 PlayerRoom playerRoom;

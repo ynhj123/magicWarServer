@@ -37,7 +37,6 @@ public class MsgDecoder extends ByteToMessageDecoder {
         if (in.readableBytes() < 4) {// 不够包头
             return;
         }
-
         //记录当前ByteBuf的读指针位置，以便下面取报文长度字节
         //pos是一个完整报文的开始位置，报文整体会在ByteBuf中移动，类似内存管理，所以基于字节的判断报文长度等等，都是基于pos，否则可以在byteBuf.readBytes（）之后加，byteBuf.discardReadBytes();整理ByteBuf，使pos回到0开始位置
         /*byte[] bytes = in.array();
@@ -72,8 +71,7 @@ public class MsgDecoder extends ByteToMessageDecoder {
         if (length < 0) {// 非法数据，关闭连接
             ctx.close();
         }
-
-        if (length > in.readableBytes() + 2) {// 读到的消息体长度如果小于传送过来的消息长度
+        if (length > in.readableBytes()) {// 读到的消息体长度如果小于传送过来的消息长度
             // 重置读取位置 //防止半包
             in.resetReaderIndex();
             return;
