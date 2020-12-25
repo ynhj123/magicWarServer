@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message LeaveBattleMsg {
+     string code=1;
+     string msg=2;
+}

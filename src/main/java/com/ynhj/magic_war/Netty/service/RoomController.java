@@ -2,9 +2,7 @@ package com.ynhj.magic_war.Netty.service;
 
 import com.ynhj.magic_war.Netty.BusinessServiceImpl;
 import com.ynhj.magic_war.Netty.ServerSession;
-import com.ynhj.magic_war.common.entity.Result;
-import com.ynhj.magic_war.common.exception.SystemErrorType;
-import com.ynhj.magic_war.model.entity.msg.*;
+import com.ynhj.magic_war.model.entity.msg.protobuf.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,59 +26,46 @@ public class RoomController implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        businessService.setListeners(RoomListMsg.class.getSimpleName(), (ctx, msgBase) -> {
-            RoomListMsg msg = (RoomListMsg) msgBase;
+        businessService.setListeners(RoomListMsgOuterClass.RoomListMsg.class.getSimpleName(), (ctx, msgBase) -> {
+            RoomListMsgOuterClass.RoomListMsg msg = RoomListMsgOuterClass.RoomListMsg.parseFrom(msgBase.getContent());
             ServerSession session = ServerSession.getSession(ctx);
-            log.error("getRoomList");
             roomService.pageRoomInfos(msg, session);
-            if (msg.getCode().equals(SystemErrorType.REPEAT_ERROR.getCode())){
-                EnterRoomMsg enterRoomMsg = new EnterRoomMsg();
-                enterRoomMsg.setRoomId(msg.getMsg());
-                enterRoomMsg.setCode(Result.SUCCESSFUL_CODE);
-                enterRoomMsg.setMsg(Result.SUCCESSFUL_MESG);
-                session.writeAndFlush(enterRoomMsg);
-            }else {
-                session.writeAndFlush(msg);
 
-            }
-        }).setListeners(CreateRoomMsg.class.getSimpleName(), (ctx, msgBase) -> {
-            CreateRoomMsg msg = (CreateRoomMsg) msgBase;
+        }).setListeners(CreateRoomMsgOuterClass.CreateRoomMsg.class.getSimpleName(), (ctx, msgBase) -> {
+            CreateRoomMsgOuterClass.CreateRoomMsg msg = CreateRoomMsgOuterClass.CreateRoomMsg.parseFrom(msgBase.getContent());
             ServerSession session = ServerSession.getSession(ctx);
             roomService.addRoomInfo(msg, session);
-            session.writeAndFlush(msg);
-        }).setListeners(ChatRoomMsg.class.getSimpleName(), (ctx, msgBase) -> {
-            ChatRoomMsg msg = (ChatRoomMsg) msgBase;
+
+        }).setListeners(ChatRoomMsgOuterClass.ChatRoomMsg.class.getSimpleName(), (ctx, msgBase) -> {
+            ChatRoomMsgOuterClass.ChatRoomMsg msg = ChatRoomMsgOuterClass.ChatRoomMsg.parseFrom(msgBase.getContent());
             ServerSession session = ServerSession.getSession(ctx);
             roomService.Chat(msg, session);
-
-        }).setListeners(GetRoomInfoMsg.class.getSimpleName(), (ctx, msgBase) -> {
-            GetRoomInfoMsg msg = (GetRoomInfoMsg) msgBase;
+        }).setListeners(RoomListMsgOuterClass.GetRoomInfoMsg.class.getSimpleName(), (ctx, msgBase) -> {
+            RoomListMsgOuterClass.GetRoomInfoMsg msg = RoomListMsgOuterClass.GetRoomInfoMsg.parseFrom(msgBase.getContent());
             ServerSession session = ServerSession.getSession(ctx);
             roomService.getRoomInfo(msg, session);
-            session.writeAndFlush(msg);
-        }).setListeners(EnterRoomMsg.class.getSimpleName(), ((ctx, msgBase) -> {
-            EnterRoomMsg msg = (EnterRoomMsg) msgBase;
+        }).setListeners(EnterRoomMsgOuterClass.EnterRoomMsg.class.getSimpleName(), ((ctx, msgBase) -> {
+            EnterRoomMsgOuterClass.EnterRoomMsg msg = EnterRoomMsgOuterClass.EnterRoomMsg.parseFrom(msgBase.getContent()) ;
             ServerSession session = ServerSession.getSession(ctx);
             roomService.enterRoom(msg, session);
-            session.writeAndFlush(msg);
-        })).setListeners(LeaveRoomMsg.class.getSimpleName(), (ctx, msgBase) -> {
+        })).setListeners(LeaveRoomMsgOuterClass.LeaveRoomMsg.class.getSimpleName(), (ctx, msgBase) -> {
             //广播离开游戏
-            LeaveRoomMsg msg = (LeaveRoomMsg) msgBase;
+            LeaveRoomMsgOuterClass.LeaveRoomMsg msg = LeaveRoomMsgOuterClass.LeaveRoomMsg.parseFrom(msgBase.getContent()) ;
             ServerSession session = ServerSession.getSession(ctx);
             roomService.leaveRoom(msg, session);
-        }).setListeners(ReadyStartMsg.class.getSimpleName(), (ctx, msgBase) -> {
+        }).setListeners(ReadyStartMsgOuterClass.ReadyStartMsg.class.getSimpleName(), (ctx, msgBase) -> {
             //广播准备
-            ReadyStartMsg msg = (ReadyStartMsg) msgBase;
+            ReadyStartMsgOuterClass.ReadyStartMsg msg = ReadyStartMsgOuterClass.ReadyStartMsg.parseFrom(msgBase.getContent());
             ServerSession session = ServerSession.getSession(ctx);
             roomService.ready(session);
 
-        }).setListeners(UnreadyStartMsg.class.getSimpleName(), (ctx, msgBase) -> {
+        }).setListeners(UnreadyStartMsgOuterClass.UnreadyStartMsg.class.getSimpleName(), (ctx, msgBase) -> {
             //广播取消准备
-            UnreadyStartMsg msg = (UnreadyStartMsg) msgBase;
+            UnreadyStartMsgOuterClass.UnreadyStartMsg msg = UnreadyStartMsgOuterClass.UnreadyStartMsg.parseFrom(msgBase.getContent()) ;
             ServerSession session = ServerSession.getSession(ctx);
             roomService.Unready(session);
-        }).setListeners(KickRoomMsg.class.getSimpleName(), ((ctx, msgBase) -> {
-            KickRoomMsg msg = (KickRoomMsg) msgBase;
+        }).setListeners(KickRoomMsgOuterClass.KickRoomMsg.class.getSimpleName(), ((ctx, msgBase) -> {
+            KickRoomMsgOuterClass.KickRoomMsg msg = KickRoomMsgOuterClass.KickRoomMsg.parseFrom(msgBase.getContent());
             ServerSession session = ServerSession.getSession(ctx);
             roomService.KickUser(msg, session);
 

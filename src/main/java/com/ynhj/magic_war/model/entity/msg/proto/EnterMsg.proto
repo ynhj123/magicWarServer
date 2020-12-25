@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+message EnterMsg {
+     string nickname=1;
+     string token=2;
+     string code=3;
+     string msg=4;
+}

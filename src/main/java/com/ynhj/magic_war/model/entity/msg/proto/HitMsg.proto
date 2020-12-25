@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+message HitMsg {
+
+     string uid=1;
+     int32 skillId=2;
+     float x=3;
+     float z=4;
+     float y=5;
+     string targetId=6;
+}

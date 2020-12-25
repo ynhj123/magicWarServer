@@ -1,12 +1,14 @@
 package com.ynhj.magic_war.common.net;
 
-import com.alibaba.fastjson.JSON;
 import com.ynhj.magic_war.model.entity.msg.MsgBase;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 /**
@@ -20,11 +22,11 @@ import java.util.List;
  * 解码器
  */
 
-
 public class MsgDecoder extends ByteToMessageDecoder {
 
     private final static String MSG_URL = "com.ynhj.magic_war.model.entity.msg.";
     private final Logger log = LogManager.getLogger(getClass());
+
 
     @Override
     protected void decode(ChannelHandlerContext ctx,
@@ -76,15 +78,12 @@ public class MsgDecoder extends ByteToMessageDecoder {
             in.resetReaderIndex();
             return;
         }
-        int bodyLength = length - headLength - 2;
-
-        byte[] headBytes = new byte[headLength];
+        int bodyLength = length;
         if (bodyLength < 0) {
             log.error(bodyLength);
 
         }
         byte[] bodyBytes = new byte[bodyLength];
-        in.readBytes(headBytes, 0, headLength);
         in.readBytes(bodyBytes, 0, bodyLength);
        /* if (in.hasArray()) {
             //堆缓冲
@@ -101,8 +100,11 @@ public class MsgDecoder extends ByteToMessageDecoder {
 ////            log.debug("释放临时缓冲");
 //            in.release();
 //        }
-        String className = new String(headBytes);
-        MsgBase msgBase = JSON.parseObject(bodyBytes, Class.forName(MSG_URL + className));
+        String className = ProtobufMapper.getString(headLength);
+
+        MsgBase msgBase = new MsgBase();
+        msgBase.setContent(bodyBytes);
+        msgBase.setProtoName(className);
 
 
         if (msgBase != null) {

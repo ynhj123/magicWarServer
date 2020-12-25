@@ -13,6 +13,8 @@ public class HitMsg extends MsgBase {
     //
     private float x;
     private float z;
+    private float y;
+    private String targetId;
 
     /**
      * @return the ${field.typeName}
@@ -54,8 +56,7 @@ public class HitMsg extends MsgBase {
         this.targetId = targetId;
     }
 
-    private float y;
-    private String targetId;
+
 
     /**
      * @return the String

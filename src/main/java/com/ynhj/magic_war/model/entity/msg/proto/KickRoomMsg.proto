@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message KickRoomMsg {
+     string uid=1;
+     string code=2;
+     string msg=3;
+}

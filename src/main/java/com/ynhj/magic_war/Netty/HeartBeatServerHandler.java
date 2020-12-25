@@ -5,6 +5,7 @@ import com.ynhj.magic_war.model.entity.msg.MsgBase;
 import com.ynhj.magic_war.model.entity.msg.MsgPing;
 import com.ynhj.magic_war.model.entity.msg.MsgPong;
 import com.ynhj.magic_war.common.net.cocurrent.FutureTaskScheduler;
+import com.ynhj.magic_war.model.entity.msg.protobuf.MsgPongOuterClass;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -34,10 +35,10 @@ public class HeartBeatServerHandler extends IdleStateHandler {
 
         MsgBase pkg = (MsgBase)msg;
         //判断消息类型
-        if (pkg instanceof MsgPing){
+        if (pkg.getProtoName().equals(MsgPing.class.getSimpleName()) ){
             FutureTaskScheduler.add(() -> {
                 if (ctx.channel().isActive()) {
-                    ctx.writeAndFlush(new MsgPong());
+                    ctx.writeAndFlush(MsgPongOuterClass.MsgPong.getDefaultInstance());
                 }
             });
         }

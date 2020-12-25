@@ -6,9 +6,8 @@ import com.ynhj.magic_war.Netty.SessionMap;
 import com.ynhj.magic_war.common.entity.Result;
 import com.ynhj.magic_war.common.exception.SystemErrorType;
 import com.ynhj.magic_war.model.entity.OnlineUser;
-import com.ynhj.magic_war.model.entity.msg.EnterMsg;
-import com.ynhj.magic_war.model.entity.msg.MsgPing;
-import com.ynhj.magic_war.service.RoleService;
+import com.ynhj.magic_war.model.entity.msg.protobuf.EnterMsgOuterClass;
+import com.ynhj.magic_war.model.entity.msg.protobuf.MsgPingOuterClass;
 import com.ynhj.magic_war.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
 import org.apache.commons.lang3.StringUtils;
@@ -32,8 +31,8 @@ public class SystemController implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        businessService.setListeners(EnterMsg.class.getSimpleName(), (ctx, msgBase) -> {
-            EnterMsg msg = (EnterMsg) msgBase;
+        businessService.setListeners(EnterMsgOuterClass.EnterMsg.class.getSimpleName(), (ctx, msgBase) -> {
+            EnterMsgOuterClass.EnterMsg.Builder msg = EnterMsgOuterClass.EnterMsg.parseFrom(msgBase.getContent()).toBuilder();
             ServerSession session = new ServerSession(ctx.channel());
             if (StringUtils.isEmpty(msg.getNickname()) || StringUtils.isEmpty(msg.getToken())) {
                 msg.setCode(SystemErrorType.BAD_REQUEST_ERROR.getCode());
@@ -64,8 +63,8 @@ public class SystemController implements CommandLineRunner {
                     }
                 }
             }
-            session.writeAndFlush(msg);
-        }).setListeners(MsgPing.class.getSimpleName(), (ctx, msgBase) -> {
+            session.writeAndFlush(msg.build());
+        }).setListeners(MsgPingOuterClass.MsgPing.class.getSimpleName(), (ctx, msgBase) -> {
 
         });
 

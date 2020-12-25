@@ -2,7 +2,7 @@ package com.ynhj.magic_war.Netty.service;
 
 import com.ynhj.magic_war.Netty.ServerSession;
 import com.ynhj.magic_war.model.entity.OnlineUser;
-import com.ynhj.magic_war.model.entity.msg.*;
+import com.ynhj.magic_war.model.entity.msg.protobuf.*;
 
 import java.util.List;
 
@@ -14,27 +14,27 @@ import java.util.List;
  * @description： update_version: update_date: update_author: update_note:
  */
 public interface RoomService {
-    void pageRoomInfos(RoomListMsg msg, ServerSession session);
+    void pageRoomInfos(RoomListMsgOuterClass.RoomListMsg msg, ServerSession session);
 
-    void addRoomInfo(CreateRoomMsg msg, ServerSession session);
+    void addRoomInfo(CreateRoomMsgOuterClass.CreateRoomMsg msg, ServerSession session);
 
-    void Chat(ChatRoomMsg msg, ServerSession session);
+    void Chat(ChatRoomMsgOuterClass.ChatRoomMsg msg, ServerSession session);
 
-    void getRoomInfo(GetRoomInfoMsg msg, ServerSession session);
+    void getRoomInfo(RoomListMsgOuterClass.GetRoomInfoMsg msg, ServerSession session);
 
-    void enterRoom(EnterRoomMsg msg, ServerSession session);
+    void enterRoom(EnterRoomMsgOuterClass.EnterRoomMsg msg, ServerSession session);
 
-    void leaveRoom(LeaveRoomMsg msg, ServerSession session);
+    void leaveRoom(LeaveRoomMsgOuterClass.LeaveRoomMsg msg, ServerSession session);
 
     void ready(ServerSession session);
 
     void Unready(ServerSession session);
 
-    void KickUser(KickRoomMsg msg, ServerSession session);
+    void KickUser(KickRoomMsgOuterClass.KickRoomMsg msg, ServerSession session);
 
-    void broadcast(List<String> userIds, MsgBase msgBase);
+    void broadcast(List<String> userIds, com.google.protobuf.GeneratedMessageV3 msgBase);
 
-    void broadcast(String roomId, MsgBase msgBase);
+    void broadcast(String roomId, com.google.protobuf.GeneratedMessageV3 msgBase);
 
     boolean isOwn(OnlineUser user);
 

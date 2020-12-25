@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+
+message SyncPlayerMsg {
+     string uid=1;
+     float x=2;
+     float z=3;
+     float ey=4;
+     double hp=5;
+     double speed=6;
+     int32 killNum=7;
+     int64 frame=8;
+}
+

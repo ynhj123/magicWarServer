@@ -2,7 +2,7 @@ package com.ynhj.magic_war.Netty.service;
 
 import com.ynhj.magic_war.Netty.BusinessServiceImpl;
 import com.ynhj.magic_war.Netty.ServerSession;
-import com.ynhj.magic_war.model.entity.msg.*;
+import com.ynhj.magic_war.model.entity.msg.protobuf.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -24,28 +24,29 @@ public class BattleController implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        businessService.setListeners(StartMsg.class.getSimpleName(), (ctx, msgBase) -> {
-            StartMsg msg = (StartMsg) msgBase;
+        businessService.setListeners(StartMsgOuterClass.StartMsg.class.getSimpleName(), (ctx, msgBase) -> {
+
+            StartMsgOuterClass.StartMsg msg = StartMsgOuterClass.StartMsg.parseFrom(msgBase.getContent());
             ServerSession session = ServerSession.getSession(ctx);
             battleService.start(msg, session);
-        }).setListeners(LeaveBattleMsg.class.getSimpleName(), (ctx, msgBase) -> {
-            LeaveBattleMsg msg = (LeaveBattleMsg) msgBase;
+        }).setListeners(LeaveBattleMsgOuterClass.LeaveBattleMsg.class.getSimpleName(), (ctx, msgBase) -> {
+            LeaveBattleMsgOuterClass.LeaveBattleMsg msg = LeaveBattleMsgOuterClass.LeaveBattleMsg.parseFrom(msgBase.getContent());
             ServerSession session = ServerSession.getSession(ctx);
             battleService.leave(msg, session);
-        }).setListeners(HitMsg.class.getSimpleName(), (ctx, msgBase) -> {
-            HitMsg msg = (HitMsg) msgBase;
+        }).setListeners(HitMsgOuterClass.HitMsg.class.getSimpleName(), (ctx, msgBase) -> {
+            HitMsgOuterClass.HitMsg msg = HitMsgOuterClass.HitMsg.parseFrom(msgBase.getContent());
             ServerSession session = ServerSession.getSession(ctx);
             battleService.syncHit(msg, session);
-        }).setListeners(SkillMsg.class.getSimpleName(), (ctx, msgBase) -> {
-            SkillMsg msg = (SkillMsg) msgBase;
+        }).setListeners(SkillMsgOuterClass.SkillMsg.class.getSimpleName(), (ctx, msgBase) -> {
+            SkillMsgOuterClass.SkillMsg msg = SkillMsgOuterClass.SkillMsg.parseFrom(msgBase.getContent());
             ServerSession session = ServerSession.getSession(ctx);
             battleService.syncSkill(msg, session);
-        }).setListeners(SyncPlayerMsg.class.getSimpleName(), (ctx, msgBase) -> {
-            SyncPlayerMsg msg = (SyncPlayerMsg) msgBase;
+        }).setListeners(SyncPlayerMsgOuterClass.SyncPlayerMsg.class.getSimpleName(), (ctx, msgBase) -> {
+            SyncPlayerMsgOuterClass.SyncPlayerMsg msg = SyncPlayerMsgOuterClass.SyncPlayerMsg.parseFrom(msgBase.getContent());
             ServerSession session = ServerSession.getSession(ctx);
             battleService.syncPlayer(msg, session);
-        }).setListeners(LoadFinishMsg.class.getSimpleName(), (ctx, msgBase) -> {
-            LoadFinishMsg msg = (LoadFinishMsg) msgBase;
+        }).setListeners(LoadFinishMsgOuterClass.LoadFinishMsg.class.getSimpleName(), (ctx, msgBase) -> {
+            LoadFinishMsgOuterClass.LoadFinishMsg msg = LoadFinishMsgOuterClass.LoadFinishMsg.parseFrom(msgBase.getContent());
             ServerSession session = ServerSession.getSession(ctx);
             battleService.load(msg, session);
         })

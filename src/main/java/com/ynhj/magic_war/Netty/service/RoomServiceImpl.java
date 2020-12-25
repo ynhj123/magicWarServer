@@ -8,7 +8,7 @@ import com.ynhj.magic_war.model.Role;
 import com.ynhj.magic_war.model.entity.OnlineUser;
 import com.ynhj.magic_war.model.entity.PlayerRoom;
 import com.ynhj.magic_war.model.entity.RoomInfo;
-import com.ynhj.magic_war.model.entity.msg.*;
+import com.ynhj.magic_war.model.entity.msg.protobuf.*;
 import com.ynhj.magic_war.service.RoleService;
 import com.ynhj.magic_war.utils.UUIDUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,8 +37,9 @@ public class RoomServiceImpl implements RoomService {
     @Autowired
     RoleService roleService;
 
-    public void pageRoomInfos(RoomListMsg msg, ServerSession session) {
+    public void pageRoomInfos(RoomListMsgOuterClass.RoomListMsg base, ServerSession session) {
         OnlineUser user = session.getUser();
+        RoomListMsgOuterClass.RoomListMsg.Builder msg = base.toBuilder();
         if (null == session || !session.isLogin()) {
             msg.setCode(SystemErrorType.UNAUTHORIZED_ERROR.getCode());
             msg.setMsg(SystemErrorType.UNAUTHORIZED_ERROR.getMesg());
@@ -61,22 +62,33 @@ public class RoomServiceImpl implements RoomService {
         } else {
             page(msg);
         }
+        if (msg.getCode().equals(SystemErrorType.REPEAT_ERROR.getCode())){
+            EnterRoomMsgOuterClass.EnterRoomMsg.Builder enterRoomMsg = EnterRoomMsgOuterClass.EnterRoomMsg.newBuilder();
+            enterRoomMsg.setRoomId(msg.getMsg());
+            enterRoomMsg.setCode(Result.SUCCESSFUL_CODE);
+            enterRoomMsg.setMsg(Result.SUCCESSFUL_MESG);
+            session.writeAndFlush(enterRoomMsg.build());
+        }else {
+            session.writeAndFlush(msg.build());
+
+        }
 
     }
 
-    private void page(RoomListMsg msg) {
+    private void page(RoomListMsgOuterClass.RoomListMsg.Builder msg) {
         List<RoomInfo> rooms = roomMap.entrySet().stream()
                 .map(Map.Entry::getValue)
                 .sorted()
                 .skip(msg.getPageSize() * (msg.getCurPage() - 1)).limit(msg.getPageSize())
                 .collect(Collectors.toList());
-        msg.setRooms(rooms);
+        rooms.forEach(roomInfo -> msg.addRooms(roomInfo.toMsg()));
         msg.setSize(roomMap.size());
         msg.setCode(Result.SUCCESSFUL_CODE);
         msg.setMsg(Result.SUCCESSFUL_MESG);
     }
 
-    public void addRoomInfo(CreateRoomMsg msg, ServerSession session) {
+    public void addRoomInfo(CreateRoomMsgOuterClass.CreateRoomMsg base, ServerSession session) {
+        CreateRoomMsgOuterClass.CreateRoomMsg.Builder msg = base.toBuilder();
         if (null == session || !session.isLogin()) {
             msg.setCode(SystemErrorType.UNAUTHORIZED_ERROR.getCode());
             msg.setMsg(SystemErrorType.UNAUTHORIZED_ERROR.getMesg());
@@ -103,10 +115,11 @@ public class RoomServiceImpl implements RoomService {
             msg.setCode(Result.SUCCESSFUL_CODE);
             msg.setMsg(Result.SUCCESSFUL_MESG);
         }
-
+        session.writeAndFlush(msg.build());
     }
 
-    public void Chat(ChatRoomMsg msg, ServerSession session) {
+    public void Chat(ChatRoomMsgOuterClass.ChatRoomMsg base, ServerSession session) {
+        ChatRoomMsgOuterClass.ChatRoomMsg.Builder msg = base.toBuilder();
         OnlineUser user = session.getUser();
         String roomId = user.getRoomId();
         if (null == session || !session.isLogin()) {
@@ -129,12 +142,13 @@ public class RoomServiceImpl implements RoomService {
             } else {
                 List<String> userIds = roomInfo.getPlayers().stream().map(playerRoom -> playerRoom.getUid()).collect(Collectors.toList());
                 msg.setFromId(user.getId());
-                broadcast(userIds, msg);
+                broadcast(userIds, msg.build());
             }
         }
     }
 
-    public void getRoomInfo(GetRoomInfoMsg msg, ServerSession session) {
+    public void getRoomInfo(RoomListMsgOuterClass.GetRoomInfoMsg base, ServerSession session) {
+        RoomListMsgOuterClass.GetRoomInfoMsg.Builder msg = base.toBuilder();
         OnlineUser user = session.getUser();
         String roomId = user.getRoomId();
         if (null == session || !session.isLogin()) {
@@ -147,11 +161,15 @@ public class RoomServiceImpl implements RoomService {
         } else {
             msg.setCode(Result.SUCCESSFUL_CODE);
             msg.setMsg(Result.SUCCESSFUL_MESG);
-            msg.setPlayers(roomMap.get(roomId).getPlayers());
+            roomMap.get(roomId).getPlayers().forEach(playerRoom -> msg.addPlayers(playerRoom.toMsg()));
         }
+        session.writeAndFlush(msg.build());
+
     }
 
-    public void enterRoom(EnterRoomMsg msg, ServerSession session) {
+    public void enterRoom(EnterRoomMsgOuterClass.EnterRoomMsg base, ServerSession session) {
+        EnterRoomMsgOuterClass.EnterRoomMsg.Builder msg = base.toBuilder();
+
         if (null == session || !session.isLogin()) {
             msg.setCode(SystemErrorType.UNAUTHORIZED_ERROR.getCode());
             msg.setMsg(SystemErrorType.UNAUTHORIZED_ERROR.getMesg());
@@ -196,16 +214,19 @@ public class RoomServiceImpl implements RoomService {
                         .map(playerRoom1 -> playerRoom1.getUid())
                         .filter(playerRoom1 -> !playerRoom1.equals(user.getId()))
                         .collect(Collectors.toList());
-                GetRoomInfoMsg getRoomInfoMsg = new GetRoomInfoMsg();
+                RoomListMsgOuterClass.GetRoomInfoMsg.Builder getRoomInfoMsg = RoomListMsgOuterClass.GetRoomInfoMsg.newBuilder();
                 getRoomInfoMsg.setCode(Result.SUCCESSFUL_CODE);
                 getRoomInfoMsg.setMsg(Result.SUCCESSFUL_MESG);
-                getRoomInfoMsg.setPlayers(players);
-                broadcast(userIds, getRoomInfoMsg);
+                players.forEach(playerRoom1 -> getRoomInfoMsg.addPlayers(playerRoom1.toMsg()));
+                broadcast(userIds, getRoomInfoMsg.build());
             }
         }
+        session.writeAndFlush(msg.build());
+
     }
 
-    public void leaveRoom(LeaveRoomMsg msg, ServerSession session) {
+    public void leaveRoom(LeaveRoomMsgOuterClass.LeaveRoomMsg base, ServerSession session) {
+        LeaveRoomMsgOuterClass.LeaveRoomMsg.Builder msg = base.toBuilder();
         if (null == session || !session.isLogin()) {
             msg.setCode(SystemErrorType.UNAUTHORIZED_ERROR.getCode());
             msg.setMsg(SystemErrorType.UNAUTHORIZED_ERROR.getMesg());
@@ -238,27 +259,28 @@ public class RoomServiceImpl implements RoomService {
                         }
                         //广播离开
                         roomInfo.setCount(players.size());
-                        GetRoomInfoMsg getRoomInfoMsg = new GetRoomInfoMsg();
+                        RoomListMsgOuterClass.GetRoomInfoMsg.Builder getRoomInfoMsg = RoomListMsgOuterClass.GetRoomInfoMsg.newBuilder();
                         getRoomInfoMsg.setCode(Result.SUCCESSFUL_CODE);
                         getRoomInfoMsg.setMsg(Result.SUCCESSFUL_MESG);
-                        getRoomInfoMsg.setPlayers(players);
+                        players.forEach(playerRoom1 -> getRoomInfoMsg.addPlayers(playerRoom1.toMsg()));
                         List<String> userIds = players.stream()
                                 .map(playerRoom1 -> playerRoom1.getUid())
                                 .filter(playerRoom2 -> !playerRoom2.equals(user.getId()))
                                 .collect(Collectors.toList());
-                        broadcast(userIds, getRoomInfoMsg);
+                        broadcast(userIds, getRoomInfoMsg.build());
                     }
 
                     msg.setCode(Result.SUCCESSFUL_CODE);
                     msg.setMsg(Result.SUCCESSFUL_MESG);
                 }
             }
-            session.writeAndFlush(msg);
+            session.writeAndFlush(msg.build());
         }
     }
 
-    public void KickUser(KickRoomMsg msg, ServerSession session) {
+    public void KickUser(KickRoomMsgOuterClass.KickRoomMsg base, ServerSession session) {
         OnlineUser user = session.getUser();
+        KickRoomMsgOuterClass.KickRoomMsg.Builder msg = base.toBuilder();
         String roomId = user.getRoomId();
 
         if (null == session || !session.isLogin()) {
@@ -281,24 +303,24 @@ public class RoomServiceImpl implements RoomService {
                         .ifPresent(playerRoom -> {
                             players.remove(playerRoom);
                             //广播
-                            GetRoomInfoMsg getRoomInfoMsg = new GetRoomInfoMsg();
+                            RoomListMsgOuterClass.GetRoomInfoMsg.Builder getRoomInfoMsg = RoomListMsgOuterClass.GetRoomInfoMsg.newBuilder();
                             getRoomInfoMsg.setCode(Result.SUCCESSFUL_CODE);
                             getRoomInfoMsg.setMsg(Result.SUCCESSFUL_MESG);
-                            getRoomInfoMsg.setPlayers(players);
+                            players.forEach(playerRoom1 -> getRoomInfoMsg.addPlayers(playerRoom1.toMsg()));
                             List<String> userIds = players.stream()
                                     .map(playerRoom1 -> playerRoom1.getUid())
                                     .filter(playerRoom2 -> !playerRoom2.equals(uid))
                                     .collect(Collectors.toList());
-                            broadcast(userIds, getRoomInfoMsg);
+                            broadcast(userIds, getRoomInfoMsg.build());
                             //单播
                             List<ServerSession> sessionsBy = SessionMap.inst().getSessionsBy(uid);
                             if (sessionsBy.size() > 0) {
                                 ServerSession serverSession = sessionsBy.get(0);
                                 serverSession.getUser().setRoomId("");
-                                LeaveRoomMsg leaveRoomMsg = new LeaveRoomMsg();
+                                LeaveRoomMsgOuterClass.LeaveRoomMsg.Builder leaveRoomMsg = LeaveRoomMsgOuterClass.LeaveRoomMsg.newBuilder();
                                 leaveRoomMsg.setCode(Result.SUCCESSFUL_CODE);
                                 leaveRoomMsg.setMsg("你被踢出房间！");
-                                serverSession.writeAndFlush(leaveRoomMsg);
+                                serverSession.writeAndFlush(leaveRoomMsg.build());
                             }
 
 
@@ -327,12 +349,12 @@ public class RoomServiceImpl implements RoomService {
                     .findFirst()
                     .ifPresent(playerRoom -> {
                         playerRoom.setRoomStatus(0);
-                        GetRoomInfoMsg getRoomInfoMsg = new GetRoomInfoMsg();
+                        RoomListMsgOuterClass.GetRoomInfoMsg.Builder getRoomInfoMsg = RoomListMsgOuterClass.GetRoomInfoMsg.newBuilder();
                         getRoomInfoMsg.setCode(Result.SUCCESSFUL_CODE);
                         getRoomInfoMsg.setMsg(Result.SUCCESSFUL_MESG);
                         List<String> userIds = players.stream().map(playerRoom1 -> playerRoom1.getUid()).collect(Collectors.toList());
-                        getRoomInfoMsg.setPlayers(players);
-                        broadcast(userIds, getRoomInfoMsg);
+                        players.forEach(playerRoom1 -> getRoomInfoMsg.addPlayers(playerRoom1.toMsg()));
+                        broadcast(userIds, getRoomInfoMsg.build());
                     });
         }
     }
@@ -356,25 +378,25 @@ public class RoomServiceImpl implements RoomService {
                     .findFirst()
                     .ifPresent(playerRoom -> {
                         playerRoom.setRoomStatus(1);
-                        GetRoomInfoMsg getRoomInfoMsg = new GetRoomInfoMsg();
+                        RoomListMsgOuterClass.GetRoomInfoMsg.Builder getRoomInfoMsg = RoomListMsgOuterClass.GetRoomInfoMsg.newBuilder();
                         getRoomInfoMsg.setCode(Result.SUCCESSFUL_CODE);
                         getRoomInfoMsg.setMsg(Result.SUCCESSFUL_MESG);
                         List<String> userIds = players.stream().map(playerRoom1 -> playerRoom1.getUid()).collect(Collectors.toList());
-                        getRoomInfoMsg.setPlayers(players);
-                        broadcast(userIds, getRoomInfoMsg);
+                        players.forEach(playerRoom1 -> getRoomInfoMsg.addPlayers(playerRoom1.toMsg()));
+                        broadcast(userIds, getRoomInfoMsg.build());
                     });
         }
     }
 
 
-    public void broadcast(List<String> userIds, MsgBase msgBase) {
+    public void broadcast(List<String> userIds, com.google.protobuf.GeneratedMessageV3 msgBase) {
         SessionMap.inst().getSessionsBy(userIds).stream().
                 forEach(serverSession -> serverSession.writeAndFlush(msgBase));
 
     }
 
     @Override
-    public void broadcast(String roomId, MsgBase msgBase) {
+    public void broadcast(String roomId, com.google.protobuf.GeneratedMessageV3 msgBase) {
         RoomInfo roomInfo = roomMap.get(roomId);
         List<String> userIds = roomInfo.getPlayers().stream().map(playerRoom -> playerRoom.getUid()).collect(Collectors.toList());
         broadcast(userIds, msgBase);

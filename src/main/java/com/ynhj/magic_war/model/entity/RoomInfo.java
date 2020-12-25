@@ -1,5 +1,7 @@
 package com.ynhj.magic_war.model.entity;
 
+import com.ynhj.magic_war.model.entity.msg.protobuf.RoomListMsgOuterClass;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -125,6 +127,16 @@ public class RoomInfo implements Comparable<RoomInfo> {
         int id = Integer.parseInt(this.getId());
         Integer otherId=  Integer.parseInt(o.getId());
         return id-otherId;
+    }
+
+    public RoomListMsgOuterClass.RoomInfo toMsg() {
+        RoomListMsgOuterClass.RoomInfo.Builder builder = RoomListMsgOuterClass.RoomInfo.newBuilder();
+        builder.setCount(this.count);
+        builder.setMaxCount(this.maxCount);
+        builder.setStatus(this.status);
+        builder.setId(this.id);
+        players.forEach(playerRoom -> builder.addPlayers(playerRoom.toMsg()));
+        return builder.build();
     }
 
 

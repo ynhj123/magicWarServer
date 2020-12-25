@@ -31,6 +31,7 @@ public class NettyServer {
     @Autowired
     BusinessHandler businessHandler;
 
+
     // 通过nio方式来接收连接和处理连接
     private EventLoopGroup bg =
             new NioEventLoopGroup();

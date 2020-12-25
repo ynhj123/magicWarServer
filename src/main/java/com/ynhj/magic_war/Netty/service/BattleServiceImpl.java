@@ -6,7 +6,7 @@ import com.ynhj.magic_war.common.exception.SystemErrorType;
 import com.ynhj.magic_war.model.Equipment;
 import com.ynhj.magic_war.model.entity.OnlineUser;
 import com.ynhj.magic_war.model.entity.PlayerInfo;
-import com.ynhj.magic_war.model.entity.msg.*;
+import com.ynhj.magic_war.model.entity.msg.protobuf.*;
 import com.ynhj.magic_war.service.EquipmentService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -34,8 +34,10 @@ public class BattleServiceImpl implements BattleService {
     EquipmentService equipmentService;
 
     @Override
-    public void start(StartMsg msg, ServerSession session) {
+    public void start(StartMsgOuterClass.StartMsg base, ServerSession session) {
         OnlineUser user = session.getUser();
+        StartMsgOuterClass.StartMsg.Builder msg = base.toBuilder();
+
         if (null == session || !session.isLogin()) {
             msg.setCode(SystemErrorType.UNAUTHORIZED_ERROR.getCode());
             msg.setMsg(SystemErrorType.UNAUTHORIZED_ERROR.getMesg());
@@ -53,13 +55,14 @@ public class BattleServiceImpl implements BattleService {
             roomService.start(user.getRoomId());
             msg.setCode(Result.SUCCESSFUL_CODE);
             msg.setMsg(Result.SUCCESSFUL_MESG);
-            roomService.broadcast(user.getRoomId(), msg);
+            roomService.broadcast(user.getRoomId(), msg.build());
         }
     }
 
     @Override
-    public void load(LoadFinishMsg msg, ServerSession session) {
+    public void load(LoadFinishMsgOuterClass.LoadFinishMsg base, ServerSession session) {
         OnlineUser user = session.getUser();
+        LoadFinishMsgOuterClass.LoadFinishMsg.Builder msg = base.toBuilder();
         if (null == session || !session.isLogin()) {
             msg.setCode(SystemErrorType.UNAUTHORIZED_ERROR.getCode());
             msg.setMsg(SystemErrorType.UNAUTHORIZED_ERROR.getMesg());
@@ -81,9 +84,9 @@ public class BattleServiceImpl implements BattleService {
                 if (players.containsKey(user.getRoomId())) {
                     playerInfos = players.get(user.getRoomId());
                     Optional<PlayerInfo> first = playerInfos.stream().filter(playerInfo1 -> playerInfo1.getUid().equals(user.getId())).findFirst();
-                    if (!first.isPresent()){
+                    if (!first.isPresent()) {
                         playerInfos.add(playerInfo);
-                    }else {
+                    } else {
                         first.get().init(equipment);
                     }
 
@@ -94,10 +97,10 @@ public class BattleServiceImpl implements BattleService {
                 }
                 int playerCount = roomService.getCount(user.getRoomId());
                 if (playerInfos.size() == playerCount) {
-                    msg.setPlayers(playerInfos);
+                    playerInfos.forEach(playerInfo1 -> msg.addPlayers(playerInfo1.toMsg()));
                     msg.setCode(Result.SUCCESSFUL_CODE);
                     msg.setMsg(Result.SUCCESSFUL_MESG);
-                    roomService.broadcast(user.getRoomId(), msg);
+                    roomService.broadcast(user.getRoomId(), msg.build());
                 }
             }
 
@@ -105,22 +108,23 @@ public class BattleServiceImpl implements BattleService {
     }
 
     @Override
-    public void syncPlayer(SyncPlayerMsg msg, ServerSession session) {
+    public void syncPlayer(SyncPlayerMsgOuterClass.SyncPlayerMsg base, ServerSession session) {
         OnlineUser user = session.getUser();
+        SyncPlayerMsgOuterClass.SyncPlayerMsg.Builder msg = base.toBuilder();
         //更新信息
         List<PlayerInfo> playerInfos = players.get(user.getRoomId());
         Optional<PlayerInfo> player = playerInfos.stream().filter(playerInfo -> playerInfo.getUid().equals(user.getId())).findFirst();
         if (player.isPresent()) {
             PlayerInfo playerInfo1 = player.get();
-            playerInfo1.update(msg);
+            playerInfo1.update(base);
             msg.setUid(user.getId());
             //广播
-            roomService.broadcast(user.getRoomId(), msg);
+            roomService.broadcast(user.getRoomId(), msg.build());
             if (msg.getHp() == 0) {
                 playerInfos.stream().forEach(playerInfo -> {
-                    if (playerInfo.getUid().equals(playerInfo1.getFinialHitId())){
+                    if (playerInfo.getUid().equals(playerInfo1.getFinialHitId())) {
                         playerInfo.setKillNum(playerInfo.getKillNum() + 1);
-                        log.error(playerInfo.getUid()+":"+playerInfo.getKillNum());
+                        log.error(playerInfo.getUid() + ":" + playerInfo.getKillNum());
 
                     }
                 });
@@ -130,13 +134,13 @@ public class BattleServiceImpl implements BattleService {
                 long count = playerInfos.stream().filter(playerInfo -> playerInfo.getHp() > 0).count();
                 playerInfo1.setRank((int) count);
                 if (count <= 1) {
-                    EndMsg endMsg = new EndMsg();
+                    LoadFinishMsgOuterClass.EndMsg.Builder endMsg = LoadFinishMsgOuterClass.EndMsg.newBuilder();
                     List<PlayerInfo> collect = playerInfos.stream()
                             .sorted(Comparator.comparing(PlayerInfo::getRank))
                             .collect(Collectors.toList());
-                    endMsg.setPlayerInfos(collect);
-                    roomService.broadcast(user.getRoomId(), endMsg);
+                    collect.forEach(playerInfo -> endMsg.addPlayers(playerInfo.toMsg()));
 
+                    roomService.broadcast(user.getRoomId(), endMsg.build());
                     roomService.initRoomPlayer(user.getRoomId());
                     roomService.end(user.getRoomId());
                     players.get(user.getRoomId()).clear();
@@ -147,7 +151,7 @@ public class BattleServiceImpl implements BattleService {
     }
 
     @Override
-    public void leave(LeaveBattleMsg msg, ServerSession session) {
+    public void leave(LeaveBattleMsgOuterClass.LeaveBattleMsg msg, ServerSession session) {
         OnlineUser user = session.getUser();
         //更新信息
         List<PlayerInfo> playerInfos = players.get(user.getRoomId());
@@ -161,22 +165,24 @@ public class BattleServiceImpl implements BattleService {
     }
 
     @Override
-    public void syncSkill(SkillMsg msg, ServerSession session) {
+    public void syncSkill(SkillMsgOuterClass.SkillMsg base, ServerSession session) {
         OnlineUser user = session.getUser();
+        SkillMsgOuterClass.SkillMsg.Builder msg = base.toBuilder();
         //更新信息
         List<PlayerInfo> playerInfos = players.get(user.getRoomId());
         Optional<PlayerInfo> player = playerInfos.stream().filter(playerInfo -> playerInfo.getUid().equals(user.getId())).findFirst();
         if (player.isPresent()) {
             msg.setUid(user.getId());
             //广播
-            roomService.broadcast(user.getRoomId(), msg);
+            roomService.broadcast(user.getRoomId(), msg.build());
         }
 
     }
 
     @Override
-    public void syncHit(HitMsg msg, ServerSession session) {
+    public void syncHit(HitMsgOuterClass.HitMsg base, ServerSession session) {
         OnlineUser user = session.getUser();
+        HitMsgOuterClass.HitMsg.Builder msg = base.toBuilder();
         //更新信息
         List<PlayerInfo> playerInfos = players.get(user.getRoomId());
         Optional<PlayerInfo> playerOpt = playerInfos.stream().filter(playerInfo -> playerInfo.getUid().equals(user.getId())).findFirst();
@@ -185,7 +191,7 @@ public class BattleServiceImpl implements BattleService {
             playerInfo.setFinialHitId(msg.getTargetId());
             msg.setUid(user.getId());
             //广播
-            roomService.broadcast(user.getRoomId(), msg);
+            roomService.broadcast(user.getRoomId(), msg.build());
         }
     }
 }

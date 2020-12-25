@@ -1,5 +1,6 @@
 package com.ynhj.magic_war.Netty;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.ynhj.magic_war.model.entity.msg.MsgBase;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -12,5 +13,5 @@ import io.netty.channel.ChannelHandlerContext;
  */
 
 public interface BusinessListener {
-    void handler(ChannelHandlerContext ctx, MsgBase msgBase);
+    void handler(ChannelHandlerContext ctx, MsgBase msgBase) throws InvalidProtocolBufferException;
 }

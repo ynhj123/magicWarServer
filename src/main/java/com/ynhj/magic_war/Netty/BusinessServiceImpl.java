@@ -1,5 +1,6 @@
 package com.ynhj.magic_war.Netty;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.ynhj.magic_war.model.entity.msg.MsgBase;
 import io.netty.channel.ChannelHandlerContext;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class BusinessServiceImpl {
         return this;
     }
 
-    public void Handler(ChannelHandlerContext ctx, MsgBase msgBase) {
+    public void Handler(ChannelHandlerContext ctx, MsgBase msgBase) throws InvalidProtocolBufferException {
         listeners.get(msgBase.getProtoName()).handler(ctx, msgBase);
     }
 }

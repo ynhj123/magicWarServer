@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+
+message SkillMsg {
+     string uid=1;
+     int32 skillId=2;
+     float x=3;
+     float y=4;
+     float z=5;
+     float ex=6;
+     float ey=7;
+     float ez=8;
+}

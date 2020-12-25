@@ -9,11 +9,7 @@ package com.ynhj.magic_war.model.entity.msg;
  */
 public class MsgBase {
     private String protoName;
-
-
-    public MsgBase() {
-        protoName = getClass().getSimpleName();
-    }
+    private byte[] content;
 
     /**
      * @return the String
@@ -23,6 +19,36 @@ public class MsgBase {
      */
     public String getProtoName() {
         return protoName;
+    }
+
+    /**
+     * @param protoName the String to set
+     * @author: yangniuhaojiang
+     * @title: setProtoName
+     * @description: update_version: update_date: update_author: update_note:
+     */
+    public void setProtoName(String protoName) {
+        this.protoName = protoName;
+    }
+
+    /**
+     * @return the byte
+     * @author: yangniuhaojiang
+     * @title: getContent
+     * @description: update_version: update_date: update_author: update_note:
+     */
+    public byte[] getContent() {
+        return content;
+    }
+
+    /**
+     * @param content the byte to set
+     * @author: yangniuhaojiang
+     * @title: setContent
+     * @description: update_version: update_date: update_author: update_note:
+     */
+    public void setContent(byte[] content) {
+        this.content = content;
     }
 
     @Override

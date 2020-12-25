@@ -7,6 +7,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * @date: 2020-11-23
@@ -38,8 +39,9 @@ public class UUIDUtils {
         return spaceRoomIds.remove(0);
     }
 
-    public static boolean removeRoomId(String roomId) throws BaseException {
-        return spaceRoomIds.add(roomId);
+    public static void removeRoomId(String roomId) throws BaseException {
+        spaceRoomIds.add(roomId);
+        spaceRoomIds = spaceRoomIds.stream().sorted().collect(Collectors.toList());
     }
 
 }

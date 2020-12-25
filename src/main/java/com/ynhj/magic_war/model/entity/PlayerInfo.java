@@ -1,7 +1,8 @@
 package com.ynhj.magic_war.model.entity;
 
 import com.ynhj.magic_war.model.Equipment;
-import com.ynhj.magic_war.model.entity.msg.SyncPlayerMsg;
+import com.ynhj.magic_war.model.entity.msg.protobuf.LoadFinishMsgOuterClass;
+import com.ynhj.magic_war.model.entity.msg.protobuf.SyncPlayerMsgOuterClass;
 
 /**
  * @date: 2020-11-23
@@ -44,7 +45,8 @@ public class PlayerInfo {
         this.finialHitId = finialHitId;
     }
 
-    private String  finialHitId;
+    private String finialHitId;
+
     public void init(Equipment equipment) {
         this.killNum = 0;
         if (equipment != null) {
@@ -60,6 +62,7 @@ public class PlayerInfo {
         }
         swichDegree(degree);
     }
+
     public PlayerInfo(String uid, int degree, String nickname, Equipment equipment) {
         this.uid = uid;
         if (equipment != null) {
@@ -349,7 +352,7 @@ public class PlayerInfo {
         this.killNum = killNum;
     }
 
-    public void update(SyncPlayerMsg msg) {
+    public void update(SyncPlayerMsgOuterClass.SyncPlayerMsg msg) {
         this.x = msg.getX();
         this.ey = msg.getEy();
         this.z = msg.getZ();
@@ -376,5 +379,22 @@ public class PlayerInfo {
      */
     public void setRank(int rank) {
         this.rank = rank;
+    }
+
+    public LoadFinishMsgOuterClass.PlayerInfo toMsg() {
+        LoadFinishMsgOuterClass.PlayerInfo.Builder builder = LoadFinishMsgOuterClass.PlayerInfo.newBuilder();
+        builder.setAttach(this.attach);
+        builder.setDefense(this.defense);
+        builder.setDegree(this.degree);
+        builder.setEy(this.ey);
+        builder.setHp(this.hp);
+        builder.setKillNum(this.killNum);
+        builder.setRank(this.rank);
+        builder.setSpeed(this.speed);
+        builder.setX(this.x);
+        builder.setZ(this.z);
+        builder.setNickname(this.nickname);
+        builder.setUid(this.uid);
+        return builder.build();
     }
 }

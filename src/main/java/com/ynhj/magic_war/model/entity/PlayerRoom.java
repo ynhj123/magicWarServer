@@ -1,5 +1,7 @@
 package com.ynhj.magic_war.model.entity;
 
+import com.ynhj.magic_war.model.entity.msg.protobuf.RoomListMsgOuterClass;
+
 /**
  * @date: 2020-11-23
  * @author: yangniuhaojiang
@@ -135,4 +137,14 @@ public class PlayerRoom {
     }
 
 
+    public RoomListMsgOuterClass.PlayerRoom toMsg() {
+        RoomListMsgOuterClass.PlayerRoom.Builder builder = RoomListMsgOuterClass.PlayerRoom.newBuilder();
+        builder.setDegree(this.degree);
+        builder.setRoomStatus(this.roomStatus);
+        builder.setScore(this.score);
+        builder.setNickname(this.nickname);
+        builder.setUid(this.uid);
+        builder.setUsername(this.username);
+        return builder.build();
+    }
 }

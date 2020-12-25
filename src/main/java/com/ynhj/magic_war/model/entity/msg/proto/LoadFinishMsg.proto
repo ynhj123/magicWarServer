@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+
+message LoadFinishMsg {
+     string code=1;
+     string msg=2;
+     repeated PlayerInfo players=3;
+}
+message EndMsg {
+    repeated PlayerInfo players=1;
+}
+
+
+message PlayerInfo {
+     string uid=1;
+     float x=2;
+     float z=3;
+     float ey=4;
+     double hp=5;
+     int32 degree=6;
+     string nickname=7;
+     double attach=8;
+     double defense=9;
+     double speed=10;
+     int32 killNum=11;
+     int32 rank=12;
+ }
+
+

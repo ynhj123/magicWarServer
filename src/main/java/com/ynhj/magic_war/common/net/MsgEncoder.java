@@ -1,11 +1,12 @@
 package com.ynhj.magic_war.common.net;
 
 
-import com.alibaba.fastjson.JSON;
-import com.ynhj.magic_war.model.entity.msg.MsgBase;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * create by 尼恩 @ 疯狂创客圈
@@ -13,22 +14,20 @@ import io.netty.handler.codec.MessageToByteEncoder;
  * 编码器
  */
 
+public class MsgEncoder extends MessageToByteEncoder<com.google.protobuf.GeneratedMessageV3> {
 
-public class MsgEncoder extends MessageToByteEncoder<MsgBase> {
 
 
     @Override
-    protected void encode(ChannelHandlerContext channelHandlerContext, MsgBase msg, ByteBuf out) throws Exception {
-        byte[] headBytes = msg.getProtoName().getBytes();
-        byte[] bodyBytes = JSON.toJSONString(msg).getBytes();
-        int msgLength = headBytes.length + bodyBytes.length + 2;
+    protected void encode(ChannelHandlerContext channelHandlerContext, com.google.protobuf.GeneratedMessageV3 msg, ByteBuf out) throws Exception {
+        byte[] bodyBytes = msg.toByteArray();
+        int msgLength = bodyBytes.length;
         out.writeByte(msgLength % 256);
         out.writeByte(msgLength / 256);
-        int headLength = headBytes.length;
+        int headLength = ProtobufMapper.getInt(msg.getClass().getSimpleName());
         out.writeByte(headLength % 256);
         out.writeByte(headLength / 256);
         //out.writeShort();
-        out.writeBytes(headBytes);
         out.writeBytes(bodyBytes);
     }
 }
